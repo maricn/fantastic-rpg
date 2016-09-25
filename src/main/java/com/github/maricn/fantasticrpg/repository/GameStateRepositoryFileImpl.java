@@ -81,9 +81,6 @@ public class GameStateRepositoryFileImpl implements GameStateRepository {
 
                         Instant parsedDate = Instant.from(dateTimeFormatter.parse(fileNameParts[0]));
                         gsi.setSaveTime(parsedDate);
-//                            FileTime lastModifiedTime = Files.getLastModifiedTime(path);
-//                            gsi.setSaveTime(lastModifiedTime.toInstant());
-
                         return gsi;
                     })
                     .sorted((o1, o2) -> o2.getSaveTime().compareTo(o1.getSaveTime()))

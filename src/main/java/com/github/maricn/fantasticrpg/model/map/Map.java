@@ -6,7 +6,8 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Represents game map consisting of fields which can be explored, and can contain <code>GameCharacter</code>s.
+ * Each level is represented by a map.
  *
  * @author nikola
  */
@@ -51,6 +52,14 @@ public class Map implements Serializable {
         this.numOfMonsters = numOfMonsters;
     }
 
+    /**
+     * Returns a field with given coordinates.
+     *
+     * @param y Y coordinate
+     * @param x X coordinate
+     * @return field
+     * @throws FantasticRpgException
+     */
     public Field getField(int y, int x) throws FantasticRpgException {
         if (y < 0 || x < 0 || y >= getHeight() || x >= getWidth()) {
             throw new FantasticRpgException("Field coordinates (" + y + ", " + x + ") out of map.");
@@ -59,6 +68,12 @@ public class Map implements Serializable {
         return fields[y][x];
     }
 
+    /**
+     * Explores surrounding fields.
+     *
+     * @param y Y coordinate of center field
+     * @param x X coordinate of center field
+     */
     public void explore(int y, int x) {
         for (int i : DIRECTIONS) {
             for (int j : DIRECTIONS) {
@@ -81,7 +96,6 @@ public class Map implements Serializable {
         if (startX != map.startX) return false;
         if (numOfMonsters != map.numOfMonsters) return false;
         return Arrays.deepEquals(fields, map.fields);
-
     }
 
     @Override

@@ -63,6 +63,11 @@ public class Console implements InputOutput {
         printStream.printf(ANSI.RESET + "Please choose one of the following:%n");
         String choices = commands.get(0).getMenuOption();
         for (int i = 1; i < commands.size(); i++) {
+            if (choices.length() > 100) {
+                printStream.print(choices + " | \n");
+                choices = "";
+            }
+
             choices += " | " + commands.get(i).getMenuOption();
         }
 

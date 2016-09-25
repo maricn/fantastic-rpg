@@ -102,6 +102,16 @@ public class MenuFactory {
         return this.fightMenu;
     }
 
+    /**
+     * Produces load game menu displaying saved games filenames.
+     *
+     * @param commands List of <code>LoadMenuCommand</code>s
+     * @return load game menu
+     */
+    public Menu getLoadMenu(List<Command> commands) {
+        return create(commands);
+    }
+
     private Menu create(List<Command> commands) {
         return new Menu(io, commandDispatcher, commands);
     }

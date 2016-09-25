@@ -1,6 +1,9 @@
 package com.github.maricn.fantasticrpg.model;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * Created by nikola on 2016-09-22.
@@ -40,9 +43,11 @@ public class GameStateInfo {
     @Override
     public String toString() {
         return "GameStateInfo{" +
-                "saveTime=" + saveTime +
-                ", saveName='" + saveName + '\'' +
-                ", playerName='" + playerName + '\'' +
+                "playerName = '" + playerName +
+                "\', saveTime = " + DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+                .withZone(ZoneId.systemDefault())
+                .withLocale(Locale.getDefault())
+                .format(saveTime) +
                 '}';
     }
 }

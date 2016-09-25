@@ -129,6 +129,7 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
                     targetField.setOccupying(player);
                     io.write("You killed the evil " + monster.getType() + "!\n");
                     if (map.getNumOfMonsters() == 0) {
+                        io.write("Congratulations! You completed the level!\n");
                         gameState.setState(GameState.State.PAUSED);
                         menuFactory.getMainMenu().interact();
                         break;

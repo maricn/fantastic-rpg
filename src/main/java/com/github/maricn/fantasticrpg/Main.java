@@ -16,13 +16,11 @@ import com.github.maricn.fantasticrpg.ui.MenuFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Main class, used for sharing running state of application and as a composition root.
  *
  * @author nikola
  */
 public class Main {
-
-    // @TODO: nikola - mention Ctrl+Z on UNIX and bg/fg for pausing game
 
     private static AtomicBoolean running = new AtomicBoolean(true);
 

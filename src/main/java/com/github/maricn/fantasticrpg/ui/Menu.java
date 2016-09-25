@@ -24,6 +24,10 @@ public class Menu {
         this.commands = commands;
     }
 
+    /**
+     * Outputs options and reads user input. When user has successfully selected an option,
+     * forwards command to command dispatcher for execution.
+     */
     public void interact() {
 //        io.clear();
         Command command = null;

@@ -2,6 +2,7 @@ package com.github.maricn.fantasticrpg.controller.command.menu;
 
 import com.github.maricn.fantasticrpg.Main;
 import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
+import com.github.maricn.fantasticrpg.controller.command.Command;
 import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
@@ -14,6 +15,8 @@ import com.github.maricn.fantasticrpg.repository.GameStateRepository;
 import com.github.maricn.fantasticrpg.ui.MenuFactory;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Handles displaying menus and changing game state commands (ie., non gaming commands).
@@ -55,26 +58,37 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                 menuFactory.getPauseMenu().interact();
                 break;
             case SAVE:
-//                gameState.setState(GameState.State.PAUSED);
                 gameStateRepository.save(gameState);
-                menuFactory.getPauseMenu().interact();
-//                play();
+                if (gameState.getState() == GameState.State.PAUSED) {
+                    menuFactory.getPauseMenu().interact();
+                } else {
+                    menuFactory.getMainMenu().interact();
+                }
                 break;
             case LOAD:
                 List<GameStateInfo> allGameStateInfos = gameStateRepository.getAllGameStateInfos();
-                io.write("Choose saved game:\n");
-                for (int i = 0; i < Math.min(10, allGameStateInfos.size()); i++) {
-                    io.write("(" + i + ") " + allGameStateInfos.get(i).toString());
-                }
 
-                char saveOrd = io.readChar();
-                GameStateInfo gameStateInfo = allGameStateInfos.get(saveOrd - '0');
+                List<Command> loadMenuCommandList = IntStream.range(0, allGameStateInfos.size())
+                        .limit(10)
+                        .mapToObj(value -> new LoadMenuCommand((char) (value + '0'), allGameStateInfos.get(value).toString()))
+                        .collect(Collectors.toList());
+
+//                List<Command> commands = new ArrayList<>();
+//                for (int i = 0; i < Math.min(10, allGameStateInfos.size()); i++) {
+//                    commands.add(new LoadMenuCommand((char) (i + '0'), allGameStateInfos.get(i).toString()));
+//                }
+
+                menuFactory.getLoadMenu(loadMenuCommandList).interact();
+                break;
+            case LOADGAME:
+                LoadMenuCommand lmc = (LoadMenuCommand) command;
+                GameStateInfo gameStateInfo = gameStateRepository.getAllGameStateInfos().get(lmc.getChoice() - '0');
                 GameState loadedGameState = gameStateRepository.load(gameStateInfo);
 
                 gameState.setMap(loadedGameState.getMap());
                 gameState.setPlayer(loadedGameState.getPlayer());
                 gameState.setState(loadedGameState.getState());
-//                play();
+                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
                 break;
             case QUIT:
                 io.write("Bye!");

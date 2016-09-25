@@ -17,6 +17,7 @@ public class MenuCommand implements Command {
         QUIT("Quit", 'Q'),
         DUMP("Dump", 'M'),
         MAIN(),
+        LOADGAME(),
         FIGHT();
 
         private String name;
