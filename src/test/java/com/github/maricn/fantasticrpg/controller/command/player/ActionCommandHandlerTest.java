@@ -1,11 +1,10 @@
 package com.github.maricn.fantasticrpg.controller.command.player;
 
+import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
+import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
-import com.github.maricn.fantasticrpg.controller.CommandExecutor;
-import com.github.maricn.fantasticrpg.controller.command.Command;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
-import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.ui.Menu;
 import com.github.maricn.fantasticrpg.ui.MenuFactory;
 import com.github.maricn.fantasticrpg.util.TestWorldBuilder;
@@ -17,8 +16,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.*;
 
 /**
@@ -34,7 +31,7 @@ public class ActionCommandHandlerTest {
     private InputOutput io;
 
     @Mock
-    private CommandExecutor commandExecutor;
+    private CommandDispatcher commandDispatcher;
 
     @Mock
     private Menu menu;
@@ -47,33 +44,40 @@ public class ActionCommandHandlerTest {
         menu = Mockito.mock(Menu.class);
         MenuFactory menuFactory = Mockito.mock(MenuFactory.class);
         when(menuFactory.getMainMenu()).thenReturn(menu);
-        when(menuFactory.getFightMenu(any(Direction.class))).thenReturn(menu);
+        when(menuFactory.getFightMenu()).thenReturn(menu);
         when(menuFactory.getPauseMenu()).thenReturn(menu);
-        when(menuFactory.create(anyListOf(Command.class))).thenReturn(menu);
 
         io = Mockito.mock(InputOutput.class);
-        commandExecutor = Mockito.mock(CommandExecutor.class);
+        commandDispatcher = Mockito.mock(CommandDispatcher.class);
         gameState = Mockito.mock(GameState.class);
 
         Player player = TestWorldBuilder.buildPlayer();
         when(gameState.getPlayer()).thenReturn(player);
         when(gameState.getMap()).thenReturn(TestWorldBuilder.buildMap(player));
 
-        actionCommandHandler = new ActionCommandHandler(gameState, io, menuFactory, commandExecutor);
+        actionCommandHandler = new ActionCommandHandler(gameState, io, menuFactory, commandDispatcher);
     }
 
     @After
     public void tearDown() {
-        Mockito.reset(io, commandExecutor, menu, gameState);
+        Mockito.reset(io, commandDispatcher, menu, gameState);
     }
 
     @Test
     public void testEngage() throws FantasticRpgException {
-
-        FightCommand cmd = new FightCommand(actionCommandHandler, FightCommand.Action.ENGAGE, Direction.EAST);
+        FightCommand cmd = new FightCommand(FightCommand.Action.ENGAGE);
         actionCommandHandler.executeCommand(cmd);
 
-        verifyNoMoreInteractions(commandExecutor);
+        verifyNoMoreInteractions(commandDispatcher);
+        verify(menu, times(1)).interact();
+    }
+
+    @Test
+    public void testRetreat() throws FantasticRpgException {
+        FightCommand cmd = new FightCommand(FightCommand.Action.RETREAT);
+        actionCommandHandler.executeCommand(cmd);
+
+        verifyNoMoreInteractions(commandDispatcher);
         verify(menu, times(1)).interact();
     }
 }

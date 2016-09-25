@@ -1,94 +1,108 @@
 package com.github.maricn.fantasticrpg.ui;
 
-import com.github.maricn.fantasticrpg.controller.CommandExecutor;
-import com.github.maricn.fantasticrpg.io.InputOutput;
+import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
 import com.github.maricn.fantasticrpg.controller.command.Command;
-import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
 import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
 import com.github.maricn.fantasticrpg.controller.command.player.Direction;
 import com.github.maricn.fantasticrpg.controller.command.player.FightCommand;
 import com.github.maricn.fantasticrpg.controller.command.player.MoveCommand;
+import com.github.maricn.fantasticrpg.io.InputOutput;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
+ * Factory class for producing standard menus used in game.
+ *
  * @author nikola
  */
-@SuppressWarnings("unchecked")
 public class MenuFactory {
 
-    private CommandHandler actionCommandHandler, menuCommandHandler;
-
-    public void setActionCommandHandler(CommandHandler actionCommandHandler) {
-        this.actionCommandHandler = actionCommandHandler;
-    }
-
-    public void setMenuCommandHandler(CommandHandler menuCommandHandler) {
-        this.menuCommandHandler = menuCommandHandler;
-    }
-
     private InputOutput io;
-    private CommandExecutor commandExecutor;
+    private CommandDispatcher commandDispatcher;
 
-    private Menu mainMenu, movementMenu, pauseMenu;
+    private Menu mainMenu, movementMenu, pauseMenu, fightMenu;
 
-    public MenuFactory(InputOutput io, CommandExecutor commandExecutor) {
+    public MenuFactory(InputOutput io, CommandDispatcher commandDispatcher) {
         this.io = io;
-        this.commandExecutor = commandExecutor;
+        this.commandDispatcher = commandDispatcher;
     }
 
+    /**
+     * Produces and reuses main menu.
+     *
+     * @return main menu
+     */
     public Menu getMainMenu() {
         if (mainMenu == null) {
             this.mainMenu = create(Arrays.asList(
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.NEW),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.SAVE),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.LOAD),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.QUIT)
+                    new MenuCommand(MenuCommand.Menu.NEW),
+                    new MenuCommand(MenuCommand.Menu.SAVE),
+                    new MenuCommand(MenuCommand.Menu.LOAD),
+                    new MenuCommand(MenuCommand.Menu.QUIT)
             ));
         }
 
         return this.mainMenu;
     }
 
+    /**
+     * Produces and reuses movement menu.
+     *
+     * @return movement menu
+     */
     public Menu getMovementMenu() {
         if (movementMenu == null) {
             this.movementMenu = create(Arrays.asList(
-                    new MoveCommand(actionCommandHandler, Direction.NORTH),
-                    new MoveCommand(actionCommandHandler, Direction.EAST),
-                    new MoveCommand(actionCommandHandler, Direction.SOUTH),
-                    new MoveCommand(actionCommandHandler, Direction.WEST),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.DUMP),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.PAUSE)
+                    new MoveCommand(Direction.NORTH),
+                    new MoveCommand(Direction.EAST),
+                    new MoveCommand(Direction.SOUTH),
+                    new MoveCommand(Direction.WEST),
+                    new MenuCommand(MenuCommand.Menu.DUMP),
+                    new MenuCommand(MenuCommand.Menu.PAUSE)
             ));
         }
 
         return this.movementMenu;
     }
 
+    /**
+     * Produces and reuses pause menu.
+     *
+     * @return pause menu
+     */
     public Menu getPauseMenu() {
         if (pauseMenu == null) {
             this.pauseMenu = create(Arrays.asList(
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.RESUME),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.DUMP),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.NEW),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.SAVE),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.LOAD),
-                    new MenuCommand(menuCommandHandler, MenuCommand.Menu.QUIT)
+                    new MenuCommand(MenuCommand.Menu.RESUME),
+                    new MenuCommand(MenuCommand.Menu.DUMP),
+                    new MenuCommand(MenuCommand.Menu.NEW),
+                    new MenuCommand(MenuCommand.Menu.SAVE),
+                    new MenuCommand(MenuCommand.Menu.LOAD),
+                    new MenuCommand(MenuCommand.Menu.QUIT)
             ));
         }
 
         return this.pauseMenu;
     }
 
-    public Menu getFightMenu(Direction direction) {
-        return create(Arrays.asList(
-                new FightCommand(actionCommandHandler, FightCommand.Action.ATTACK, direction),
-                new FightCommand(actionCommandHandler, FightCommand.Action.RETREAT, direction)
-        ));
+    /**
+     * Produces and reuses fight menu.
+     *
+     * @return fight menu
+     */
+    public Menu getFightMenu() {
+        if (this.fightMenu == null) {
+            this.fightMenu = create(Arrays.asList(
+                    new FightCommand(FightCommand.Action.ATTACK),
+                    new FightCommand(FightCommand.Action.RETREAT)
+            ));
+        }
+
+        return this.fightMenu;
     }
 
-    public Menu create(List<Command> commands) {
-        return new Menu(io, commandExecutor, commands);
+    private Menu create(List<Command> commands) {
+        return new Menu(io, commandDispatcher, commands);
     }
 }

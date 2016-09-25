@@ -1,13 +1,13 @@
 package com.github.maricn.fantasticrpg;
 
-import com.github.maricn.fantasticrpg.controller.CommandExecutor;
+import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
 import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
 import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommandHandler;
 import com.github.maricn.fantasticrpg.controller.command.player.ActionCommandHandler;
-import com.github.maricn.fantasticrpg.model.GameState;
-import com.github.maricn.fantasticrpg.model.character.MonsterFactory;
 import com.github.maricn.fantasticrpg.io.Console;
 import com.github.maricn.fantasticrpg.io.InputOutput;
+import com.github.maricn.fantasticrpg.model.GameState;
+import com.github.maricn.fantasticrpg.model.character.MonsterFactory;
 import com.github.maricn.fantasticrpg.model.map.MapFactory;
 import com.github.maricn.fantasticrpg.repository.GameStateRepository;
 import com.github.maricn.fantasticrpg.repository.GameStateRepositoryFileImpl;
@@ -44,17 +44,17 @@ public class Main {
         GameStateRepository gameStateRepository = new GameStateRepositoryFileImpl();
 
         InputOutput io = new Console();
-        CommandExecutor commandExecutor = new CommandExecutor();
 
-        MenuFactory menuFactory = new MenuFactory(io, commandExecutor);
+        CommandDispatcher commandDispatcher = new CommandDispatcher();
 
-        ActionCommandHandler actionCommandHandler = new ActionCommandHandler(gameState, io, menuFactory, commandExecutor);
-        menuFactory.setActionCommandHandler(actionCommandHandler);
+        MenuFactory menuFactory = new MenuFactory(io, commandDispatcher);
+        ActionCommandHandler actionCommandHandler = new ActionCommandHandler(gameState, io, menuFactory, commandDispatcher);
+        MenuCommandHandler menuCommandHandler = new MenuCommandHandler(gameState, io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
 
-        MenuCommandHandler menuCommandHandler = new MenuCommandHandler(gameState, io, commandExecutor, menuFactory, mapFactory, gameStateRepository);
-        menuFactory.setMenuCommandHandler(menuCommandHandler);
+        commandDispatcher.setActionCommandHandler(actionCommandHandler);
+        commandDispatcher.setMenuCommandHandler(menuCommandHandler);
 
-        commandExecutor.exec(new MenuCommand(menuCommandHandler, MenuCommand.Menu.MAIN));
-        commandExecutor.run();
+        commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.MAIN));
+        commandDispatcher.run();
     }
 }

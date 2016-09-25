@@ -1,11 +1,13 @@
 package com.github.maricn.fantasticrpg.model.character;
 
+import com.github.maricn.fantasticrpg.controller.command.player.Direction;
+
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Anemic model used to represent player character.
  *
  * @author nikola
  */
@@ -15,6 +17,7 @@ public class Player extends GameCharacter implements Serializable {
     private String name;
     private int currX, currY;
     private Set<Ability> abilities = Collections.emptySet();
+    private Direction facing = null;
 
     /**
      * Constructor used for creating new player.
@@ -80,6 +83,14 @@ public class Player extends GameCharacter implements Serializable {
         this.abilities = abilities;
     }
 
+    public Direction getFacing() {
+        return facing;
+    }
+
+    public void setFacing(Direction facing) {
+        this.facing = facing;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -91,8 +102,8 @@ public class Player extends GameCharacter implements Serializable {
         if (currX != player.currX) return false;
         if (currY != player.currY) return false;
         if (name != null ? !name.equals(player.name) : player.name != null) return false;
-        return !(abilities != null ? !abilities.equals(player.abilities) : player.abilities != null);
-
+        if (abilities != null ? !abilities.equals(player.abilities) : player.abilities != null) return false;
+        return facing == player.facing;
     }
 
     @Override
@@ -102,6 +113,7 @@ public class Player extends GameCharacter implements Serializable {
         result = 31 * result + currX;
         result = 31 * result + currY;
         result = 31 * result + (abilities != null ? abilities.hashCode() : 0);
+        result = 31 * result + (facing != null ? facing.hashCode() : 0);
         return result;
     }
 }

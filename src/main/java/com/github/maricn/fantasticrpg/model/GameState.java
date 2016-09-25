@@ -6,7 +6,7 @@ import com.github.maricn.fantasticrpg.model.map.Map;
 import java.io.Serializable;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Anemic model representing state of the game.
  *
  * @author nikola
  */

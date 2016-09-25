@@ -1,24 +1,21 @@
 package com.github.maricn.fantasticrpg.controller.command.player;
 
-import com.github.maricn.fantasticrpg.controller.command.AbstractHandledCommand;
-import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
-
 /**
+ * Command representing player movement action.
  *
  * @author nikola
  */
-public class MoveCommand extends AbstractHandledCommand implements ActionCommand {
+public class MoveCommand implements ActionCommand {
 
     private final Direction moveDirection;
 
-    public MoveCommand(CommandHandler handler, Direction moveDirection) {
-        super(handler);
+    public MoveCommand(Direction moveDirection) {
         this.moveDirection = moveDirection;
     }
 
     @Override
     public String getName() {
-        return moveDirection.getMenuOption();
+        return moveDirection.getName();
     }
 
     @Override
@@ -26,6 +23,11 @@ public class MoveCommand extends AbstractHandledCommand implements ActionCommand
         return moveDirection.getAbbreviation();
     }
 
+    /**
+     * Returns movement direction.
+     *
+     * @return movement direction
+     */
     public Direction getMoveDirection() {
         return moveDirection;
     }

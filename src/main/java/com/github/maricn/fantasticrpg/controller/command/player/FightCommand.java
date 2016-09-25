@@ -1,21 +1,15 @@
 package com.github.maricn.fantasticrpg.controller.command.player;
 
-import com.github.maricn.fantasticrpg.controller.command.AbstractHandledCommand;
-import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
-
-
 /**
+ * Command representing action in fight mode.
  *
  * @author nikola
  */
-public class FightCommand extends AbstractHandledCommand implements ActionCommand {
+public class FightCommand implements ActionCommand {
     private Action action;
-    private Direction direction;
 
-    public FightCommand(CommandHandler commandHandler, Action action, Direction direction) {
-        super(commandHandler);
+    public FightCommand(Action action) {
         this.action = action;
-        this.direction = direction;
     }
 
     @Override
@@ -45,7 +39,4 @@ public class FightCommand extends AbstractHandledCommand implements ActionComman
         return this.action;
     }
 
-    public Direction getFightDirection() {
-        return direction;
-    }
 }

@@ -1,24 +1,27 @@
 package com.github.maricn.fantasticrpg.controller.command.player;
 
-import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.Main;
+import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
+import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
+import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
+import com.github.maricn.fantasticrpg.io.InputOutput;
+import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.character.Ability;
 import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.exception.AbilityNotFoundException;
 import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
-import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.map.Field;
 import com.github.maricn.fantasticrpg.model.map.FieldType;
 import com.github.maricn.fantasticrpg.model.map.Map;
-import com.github.maricn.fantasticrpg.controller.CommandExecutor;
 import com.github.maricn.fantasticrpg.ui.MenuFactory;
-import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
 
 import java.time.Instant;
 import java.util.Random;
 
 /**
+ * Handles gaming commands, ie. moving player, attacking monsters, etc.
+ *
  * @author nikola
  */
 public class ActionCommandHandler implements CommandHandler<ActionCommand> {
@@ -29,19 +32,31 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
     private final GameState gameState;
     private final InputOutput io;
     private final MenuFactory menuFactory;
-    private final CommandExecutor commandExecutor;
+    private final CommandDispatcher commandDispatcher;
 
-    public ActionCommandHandler(GameState gameState, InputOutput io, MenuFactory menuFactory, CommandExecutor commandExecutor) {
+    public ActionCommandHandler(GameState gameState, InputOutput io, MenuFactory menuFactory, CommandDispatcher commandDispatcher) {
         this.gameState = gameState;
         this.io = io;
         this.menuFactory = menuFactory;
-        this.commandExecutor = commandExecutor;
+        this.commandDispatcher = commandDispatcher;
     }
 
-    public void executeCommand(MoveCommand command) throws FantasticRpgException {
+    @Override
+    public void executeCommand(ActionCommand command) throws FantasticRpgException {
+        try {
+            if (command instanceof MoveCommand) executeCommand((MoveCommand) command);
+            if (command instanceof FightCommand) executeCommand((FightCommand) command);
+        } catch (FantasticRpgException ignored) {
+            commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
+//            menuFactory.getMovementMenu().interact();
+        }
+    }
+
+    private void executeCommand(MoveCommand command) throws FantasticRpgException {
         Player player = gameState.getPlayer();
         int newX = player.getCurrX() + command.getMoveDirection().getDeltaX();
         int newY = player.getCurrY() + command.getMoveDirection().getDeltaY();
+        player.setFacing(command.getMoveDirection());
 
         Map map = gameState.getMap();
         Field field;
@@ -65,7 +80,7 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
             }
 
             gameState.setState(GameState.State.FIGHTING);
-            commandExecutor.exec(new FightCommand(this, FightCommand.Action.ENGAGE, command.getMoveDirection()));
+            commandDispatcher.offer(new FightCommand(FightCommand.Action.ENGAGE));
             return;
         }
 
@@ -78,19 +93,19 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
         menuFactory.getMovementMenu().interact();
     }
 
-    public void executeCommand(FightCommand command) throws FantasticRpgException {
+    private void executeCommand(FightCommand command) throws FantasticRpgException {
         Player player = gameState.getPlayer();
         Map map = gameState.getMap();
         Field targetField = map.getField(
-                player.getCurrY() + command.getFightDirection().getDeltaY(),
-                player.getCurrX() + command.getFightDirection().getDeltaX()
+                player.getCurrY() + player.getFacing().getDeltaY(),
+                player.getCurrX() + player.getFacing().getDeltaX()
         );
         Monster monster = (Monster) targetField.getOccupying();
         switch (command.getAction()) {
             case ENGAGE:
                 io.write("Your stats: " + player + "\n");
                 io.write("You are facing " + monster + "\n");
-                menuFactory.getFightMenu(command.getFightDirection()).interact();
+                menuFactory.getFightMenu().interact();
                 break;
             case ATTACK:
                 int damage = random.nextInt(player.getDamage());
@@ -109,10 +124,10 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
 
                     map.setNumOfMonsters(map.getNumOfMonsters() - 1);
                     map.getField(player.getCurrY(), player.getCurrX()).setOccupying(null);
-                    player.setCurrX(player.getCurrX() + command.getFightDirection().getDeltaX());
-                    player.setCurrY(player.getCurrY() + command.getFightDirection().getDeltaY());
+                    player.setCurrX(player.getCurrX() + player.getFacing().getDeltaX());
+                    player.setCurrY(player.getCurrY() + player.getFacing().getDeltaY());
                     targetField.setOccupying(player);
-                    io.write("You killed the gruesome " + monster.getType() + "!\n");
+                    io.write("You killed the evil " + monster.getType() + "!\n");
                     if (map.getNumOfMonsters() == 0) {
                         gameState.setState(GameState.State.PAUSED);
                         menuFactory.getMainMenu().interact();
@@ -136,23 +151,14 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
 
                 io.write("Your stats: " + player + "\n");
                 io.write("You are facing " + monster + "\n");
-                menuFactory.getFightMenu(command.getFightDirection()).interact();
+                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.FIGHT));
+//                menuFactory.getFightMenu(command.getFightDirection()).interact();
                 break;
             case RETREAT:
                 gameState.setState(GameState.State.ROAMING);
-                menuFactory.getMovementMenu().interact();
+                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
+//                menuFactory.getMovementMenu().interact();
                 break;
         }
-    }
-
-    @Override
-    public void executeCommand(ActionCommand command) throws FantasticRpgException {
-        try {
-            if (command instanceof MoveCommand) executeCommand((MoveCommand) command);
-            if (command instanceof FightCommand) executeCommand((FightCommand) command);
-        } catch (FantasticRpgException ignored) {
-            menuFactory.getMovementMenu().interact();
-        }
-        // controller.tick();
     }
 }

@@ -1,15 +1,13 @@
 package com.github.maricn.fantasticrpg.io;
 
+import com.github.maricn.fantasticrpg.controller.command.Command;
 import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 import com.github.maricn.fantasticrpg.model.map.Field;
 import com.github.maricn.fantasticrpg.model.map.Map;
-import com.github.maricn.fantasticrpg.controller.command.Command;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 import java.util.Scanner;
 
@@ -20,8 +18,20 @@ import java.util.Scanner;
  */
 public class Console implements InputOutput {
 
-    private BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-    private Scanner in = new Scanner(System.in);
+    private PrintStream printStream;
+
+    private BufferedReader bufferedReader;
+    private Scanner in;
+
+    public Console() {
+        this(System.out, System.in);
+    }
+
+    public Console(PrintStream printStream, InputStream inputStream) {
+        this.printStream = printStream;
+        this.bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        this.in = new Scanner(inputStream);
+    }
 
     static class ANSI {
         public static final String RESET = "\u001B[0m";
@@ -39,25 +49,25 @@ public class Console implements InputOutput {
 
     @Override
     public void clear() {
-        System.out.print(ANSI.CLS + ANSI.HOME);
-        System.out.flush();
+        printStream.print(ANSI.CLS + ANSI.HOME);
+        printStream.flush();
     }
 
     @Override
     public void write(String text) {
-        System.out.print(text);
+        printStream.print(text);
     }
 
     @Override
     public void writeCommands(List<Command> commands) {
-        System.out.printf(ANSI.RESET + "Please choose one of the following:%n");
+        printStream.printf(ANSI.RESET + "Please choose one of the following:%n");
         String choices = commands.get(0).getMenuOption();
         for (int i = 1; i < commands.size(); i++) {
             choices += " | " + commands.get(i).getMenuOption();
         }
 
-        System.out.print(choices + "\n");
-        System.out.flush();
+        printStream.print(choices + "\n");
+        printStream.flush();
     }
 
     @Override
@@ -71,20 +81,20 @@ public class Console implements InputOutput {
         writeHorizontalEdge(map.getWidth());
 
         for (int i = 0; i < map.getHeight(); i++) {
-            System.out.printf("|");
+            printStream.printf("|");
             for (int j = 0; j < map.getWidth(); j++) {
                 try {
-                    System.out.printf(stringifyMapField(map.getField(i, j)));
+                    printStream.printf(stringifyMapField(map.getField(i, j)));
                 } catch (FantasticRpgException e) {
                     error(e.getMessage());
                 }
             }
 
-            System.out.printf(ANSI.RED + "|%n");
+            printStream.printf(ANSI.RED + "|%n");
         }
 
         writeHorizontalEdge(map.getWidth());
-        System.out.flush();
+        printStream.flush();
     }
 
     @Override
@@ -146,12 +156,12 @@ public class Console implements InputOutput {
     }
 
     private void writeHorizontalEdge(int width) {
-        System.out.printf(ANSI.RED + "+");
+        printStream.printf(ANSI.RED + "+");
         for (int i = 0; i < width; i++) {
-            System.out.printf("-");
+            printStream.printf("-");
         }
 
-        System.out.printf("+%n" + ANSI.RESET);
-        System.out.flush();
+        printStream.printf("+%n" + ANSI.RESET);
+        printStream.flush();
     }
 }

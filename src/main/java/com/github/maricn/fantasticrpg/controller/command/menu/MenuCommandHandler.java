@@ -1,7 +1,7 @@
 package com.github.maricn.fantasticrpg.controller.command.menu;
 
 import com.github.maricn.fantasticrpg.Main;
-import com.github.maricn.fantasticrpg.controller.CommandExecutor;
+import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
 import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
@@ -16,20 +16,22 @@ import com.github.maricn.fantasticrpg.ui.MenuFactory;
 import java.util.List;
 
 /**
+ * Handles displaying menus and changing game state commands (ie., non gaming commands).
+ *
  * @author nikola
  */
 public class MenuCommandHandler implements CommandHandler<MenuCommand> {
     private GameState gameState;
     private InputOutput io;
-    private final CommandExecutor commandExecutor;
+    private final CommandDispatcher commandDispatcher;
     private final MenuFactory menuFactory;
     private final MapFactory mapFactory;
     private final GameStateRepository gameStateRepository;
 
-    public MenuCommandHandler(GameState gameState, InputOutput io, CommandExecutor commandExecutor, MenuFactory menuFactory, MapFactory mapFactory, GameStateRepository gameStateRepository) {
+    public MenuCommandHandler(GameState gameState, InputOutput io, CommandDispatcher commandDispatcher, MenuFactory menuFactory, MapFactory mapFactory, GameStateRepository gameStateRepository) {
         this.gameState = gameState;
         this.io = io;
-        this.commandExecutor = commandExecutor;
+        this.commandDispatcher = commandDispatcher;
         this.menuFactory = menuFactory;
         this.mapFactory = mapFactory;
         this.gameStateRepository = gameStateRepository;
@@ -38,12 +40,15 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
     @Override
     public void executeCommand(MenuCommand command) {
         switch (command.getMenu()) {
-            case DUMP:
-                io.dumpMap(gameState.getMap());
-                commandExecutor.exec(new MenuCommand(this, MenuCommand.Menu.RESUME));
-                break;
             case MAIN:
                 menuFactory.getMainMenu().interact();
+                break;
+            case FIGHT:
+                menuFactory.getFightMenu().interact();
+                break;
+            case DUMP:
+                io.dumpMap(gameState.getMap());
+                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
                 break;
             case PAUSE:
                 gameState.setState(GameState.State.PAUSED);
@@ -79,7 +84,7 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                 // @TODO: kill old game (in pause menu, starting new game)
                 if (gameState.getState() == GameState.State.PAUSED) {
                     gameState.setState(GameState.State.NEW);
-                    commandExecutor.exec(new MenuCommand(this, MenuCommand.Menu.NEW));
+                    commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.NEW));
                     break;
                 }
 

@@ -1,15 +1,13 @@
 package com.github.maricn.fantasticrpg.controller.command.menu;
 
-import com.github.maricn.fantasticrpg.controller.command.AbstractHandledCommand;
 import com.github.maricn.fantasticrpg.controller.command.Command;
-import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
 
 /**
  * @author nikola
  */
 // @TODO: refactor to class with field of which command (save/load, pause) instead of interface and
 // multiple impls (https://www.cuttingedge.it/blogs/steven/pivot/entry.php?id=91)
-public class MenuCommand extends AbstractHandledCommand implements Command {
+public class MenuCommand implements Command {
     public enum Menu {
         NEW("New game", 'G'),
         PAUSE("Pause", 'P'),
@@ -17,8 +15,9 @@ public class MenuCommand extends AbstractHandledCommand implements Command {
         SAVE("Save", 'S'),
         LOAD("Load", 'L'),
         QUIT("Quit", 'Q'),
-        MAIN("Main", '.'),
-        DUMP("Dump", 'M');
+        DUMP("Dump", 'M'),
+        MAIN(),
+        FIGHT();
 
         private String name;
         private char abbr;
@@ -26,6 +25,9 @@ public class MenuCommand extends AbstractHandledCommand implements Command {
         Menu(String name, char abbr) {
             this.name = name;
             this.abbr = abbr;
+        }
+
+        Menu() {
         }
     }
 
@@ -35,8 +37,7 @@ public class MenuCommand extends AbstractHandledCommand implements Command {
         return menu;
     }
 
-    public MenuCommand(CommandHandler<MenuCommand> commandHandler, Menu menu) {
-        super(commandHandler);
+    public MenuCommand(Menu menu) {
         this.menu = menu;
     }
 
@@ -48,11 +49,6 @@ public class MenuCommand extends AbstractHandledCommand implements Command {
     @Override
     public char getAbbreviation() {
         return menu.abbr;
-    }
-
-    @Override
-    public boolean isActionCommand() {
-        return false;
     }
 
 }

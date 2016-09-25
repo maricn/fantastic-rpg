@@ -1,6 +1,8 @@
 package com.github.maricn.fantasticrpg.controller.command.player;
 
 /**
+ * Enum representing four world directions.
+ *
  * @author nikola
  */
 public enum Direction {
@@ -10,13 +12,13 @@ public enum Direction {
     SOUTH('S', "South", 0, 1);
 
     private final char abbreviation;
-    private final String menuOption;
+    private final String name;
     private final int deltaX;
     private final int deltaY;
 
     Direction(char abbr, String option, int deltaX, int deltaY) {
         this.abbreviation = abbr;
-        this.menuOption = option;
+        this.name = option;
         this.deltaX = deltaX;
         this.deltaY = deltaY;
     }
@@ -33,7 +35,7 @@ public enum Direction {
         return abbreviation;
     }
 
-    public String getMenuOption() {
-        return menuOption;
+    public String getName() {
+        return name;
     }
 }
