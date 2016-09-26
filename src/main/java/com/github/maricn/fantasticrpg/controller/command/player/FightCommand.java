@@ -39,4 +39,18 @@ public class FightCommand implements ActionCommand {
         return this.action;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FightCommand that = (FightCommand) o;
+
+        return action == that.action;
+    }
+
+    @Override
+    public int hashCode() {
+        return action != null ? action.hashCode() : 0;
+    }
 }

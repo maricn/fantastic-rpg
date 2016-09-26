@@ -31,4 +31,20 @@ public class MoveCommand implements ActionCommand {
     public Direction getMoveDirection() {
         return moveDirection;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MoveCommand that = (MoveCommand) o;
+
+        return moveDirection == that.moveDirection;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return moveDirection != null ? moveDirection.hashCode() : 0;
+    }
 }

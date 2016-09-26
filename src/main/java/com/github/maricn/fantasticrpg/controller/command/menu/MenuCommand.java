@@ -64,4 +64,18 @@ public class MenuCommand implements Command {
         return menu.abbr;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MenuCommand that = (MenuCommand) o;
+
+        return menu == that.menu;
+    }
+
+    @Override
+    public int hashCode() {
+        return menu != null ? menu.hashCode() : 0;
+    }
 }
