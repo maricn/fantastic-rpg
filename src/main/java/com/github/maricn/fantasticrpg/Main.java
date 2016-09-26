@@ -7,12 +7,14 @@ import com.github.maricn.fantasticrpg.controller.command.player.ActionCommandHan
 import com.github.maricn.fantasticrpg.io.Console;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
+import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.MonsterFactory;
 import com.github.maricn.fantasticrpg.model.map.MapFactory;
 import com.github.maricn.fantasticrpg.repository.GameStateRepository;
 import com.github.maricn.fantasticrpg.repository.GameStateRepositoryFileImpl;
 import com.github.maricn.fantasticrpg.ui.MenuFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -33,6 +35,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        InputOutput io = new Console();
+        io.write("Initializing game... ");
+
         MonsterFactory monsterFactory = new MonsterFactory();
         MapFactory mapFactory = new MapFactory(monsterFactory);
 
@@ -40,8 +45,6 @@ public class Main {
         gameState.setState(GameState.State.NEW);
 
         GameStateRepository gameStateRepository = new GameStateRepositoryFileImpl();
-
-        InputOutput io = new Console();
 
         CommandDispatcher commandDispatcher = new CommandDispatcher();
 
@@ -53,6 +56,19 @@ public class Main {
         commandDispatcher.setMenuCommandHandler(menuCommandHandler);
 
         commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.MAIN));
+
+        io.write("DONE!\n\n" +
+                "Your goal is to explore as many levels as you wish with your character.\n" +
+                "When you start new game, you have 10 experience points.\n" +
+                "By exploring level, you will encounter different evil creatures.\n" +
+                "By fighting them you gain different amounts of experience.\n" +
+                "More difficult it is to defeat a certain creature, more experience you gain.\n" +
+                "Creatures are arranged (ASC) by their health points, damage and experience as following:\n" +
+                Arrays.toString(Monster.MonsterType.values()) +
+                ".\n" +
+                "Start with lower levels until you improve your character, \n" +
+                "so your chances of defeating stronger monsters increase.\n\n" +
+                "Good luck!\n\n");
         commandDispatcher.run();
     }
 }

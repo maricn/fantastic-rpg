@@ -19,6 +19,7 @@ public class Menu {
     protected List<Command> commands;
 
     public Menu(InputOutput io, CommandDispatcher commandDispatcher, List<Command> commands) {
+        if (commands.isEmpty()) throw new RuntimeException("No commands passed to menu!");
         this.io = io;
         this.commandDispatcher = commandDispatcher;
         this.commands = commands;
@@ -51,10 +52,6 @@ public class Menu {
                     break;
                 }
             }
-
-//            if (!outputBeforeInput && command == null) {
-//                io.writeCommands(commands);
-//            }
         } while (null == command);
 
         commandDispatcher.offer(command);

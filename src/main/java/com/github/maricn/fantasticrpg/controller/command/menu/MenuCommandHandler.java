@@ -51,6 +51,7 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                 break;
             case DUMP:
                 io.dumpMap(gameState.getMap());
+                io.dumpPlayer(gameState.getPlayer());
                 commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
                 break;
             case PAUSE:
@@ -67,17 +68,10 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                 break;
             case LOAD:
                 List<GameStateInfo> allGameStateInfos = gameStateRepository.getAllGameStateInfos();
-
                 List<Command> loadMenuCommandList = IntStream.range(0, allGameStateInfos.size())
                         .limit(10)
-                        .mapToObj(value -> new LoadMenuCommand((char) (value + '0'), allGameStateInfos.get(value).toString()))
+                        .mapToObj(i -> new LoadMenuCommand((char) (i + '0'), allGameStateInfos.get(i).toString()))
                         .collect(Collectors.toList());
-
-//                List<Command> commands = new ArrayList<>();
-//                for (int i = 0; i < Math.min(10, allGameStateInfos.size()); i++) {
-//                    commands.add(new LoadMenuCommand((char) (i + '0'), allGameStateInfos.get(i).toString()));
-//                }
-
                 menuFactory.getLoadMenu(loadMenuCommandList).interact();
                 break;
             case LOADGAME:
@@ -102,12 +96,17 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                     break;
                 }
 
-                // @TODO: input error checking
                 io.write("What is your character's name?");
                 String charName = io.read();
 
-                io.write("Input a level number (1-10 Easy, 11-20 Medium, 21-30 Hard):\n");
-                int level = Integer.parseInt(io.read().trim());
+                int level = -1;
+                do {
+                    io.write("Input a level number (1-10 Easy, 11-20 Medium, 21-30 Hard):\n");
+                    try {
+                        level = Integer.parseInt(io.read().trim());
+                    } catch (Exception ignored) {
+                    }
+                } while (level < 1 || level > 30);
 
                 // Generate map and create a player if first level
                 Map map = mapFactory.generateMap(level);

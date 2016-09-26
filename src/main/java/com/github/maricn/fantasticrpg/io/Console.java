@@ -1,6 +1,7 @@
 package com.github.maricn.fantasticrpg.io;
 
 import com.github.maricn.fantasticrpg.controller.command.Command;
+import com.github.maricn.fantasticrpg.model.character.Ability;
 import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
@@ -8,6 +9,7 @@ import com.github.maricn.fantasticrpg.model.map.Field;
 import com.github.maricn.fantasticrpg.model.map.Map;
 
 import java.io.*;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -60,7 +62,7 @@ public class Console implements InputOutput {
 
     @Override
     public void writeCommands(List<Command> commands) {
-        printStream.printf(ANSI.RESET + "Please choose one of the following:%n");
+        printStream.printf(ANSI.YELLOW + "Please choose one of the following:%n");
         String choices = commands.get(0).getMenuOption();
         for (int i = 1; i < commands.size(); i++) {
             if (choices.length() > 100) {
@@ -71,18 +73,17 @@ public class Console implements InputOutput {
             choices += " | " + commands.get(i).getMenuOption();
         }
 
-        printStream.print(choices + "\n");
+        printStream.print(choices + "\n" + ANSI.RESET);
         printStream.flush();
     }
 
     @Override
     public void error(String message) {
-        write(ANSI.RED + message + ANSI.RESET);
+        write(ANSI.RED + message + ANSI.RESET + '\n');
     }
 
     @Override
     public void dumpMap(Map map) {
-        clear();
         writeHorizontalEdge(map.getWidth());
 
         for (int i = 0; i < map.getHeight(); i++) {
@@ -100,6 +101,25 @@ public class Console implements InputOutput {
 
         writeHorizontalEdge(map.getWidth());
         printStream.flush();
+    }
+
+    @Override
+    public void dumpPlayer(Player player) {
+        if (null == player) return;
+        printStream.printf("Player: \t" + player.getName() + "%n");
+        printStream.printf("Health points: \t" + player.getHealthPoints() +
+                " \t| \tExperience: \t" + player.getExperience() +
+                " \t| \tDamage: \t" + player.getDamage() + "%n");
+        if (player.getAbilities() != null && !player.getAbilities().isEmpty()) {
+            printStream.printf("Abilities: {");
+            Iterator<Ability> iterator = player.getAbilities().iterator();
+            printStream.printf(iterator.next().name());
+            for (; iterator.hasNext(); ) {
+                Ability ability = iterator.next();
+                printStream.printf(" | " + ability.name());
+            }
+            printStream.printf("}%n");
+        }
     }
 
     @Override
@@ -121,9 +141,9 @@ public class Console implements InputOutput {
 
     private static String stringifyMapField(Field field) {
         // @TODO: debug?
-//        if (!field.getExplored()) {
-//            return ANSI.RED + '?';
-//        }
+        if (!field.getExplored()) {
+            return ANSI.RED + '?';
+        }
 
         if (field.getOccupying() != null && field.getOccupying() instanceof Monster) {
             Monster monster = (Monster) field.getOccupying();

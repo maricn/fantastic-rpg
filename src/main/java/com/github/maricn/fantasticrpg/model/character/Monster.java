@@ -57,6 +57,18 @@ public class Monster extends GameCharacter implements Serializable {
         public FieldType getFieldType() {
             return fieldType;
         }
+
+        public double getHpFactor() {
+            return hpFactor;
+        }
+
+        public double getDamageFactor() {
+            return damageFactor;
+        }
+
+        public double getXpFactor() {
+            return xpFactor;
+        }
     }
 
     @Override
@@ -78,7 +90,6 @@ public class Monster extends GameCharacter implements Serializable {
 
         if (minXp != monster.minXp) return false;
         return type == monster.type;
-
     }
 
     @Override

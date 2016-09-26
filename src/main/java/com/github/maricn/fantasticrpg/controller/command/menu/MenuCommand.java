@@ -3,11 +3,15 @@ package com.github.maricn.fantasticrpg.controller.command.menu;
 import com.github.maricn.fantasticrpg.controller.command.Command;
 
 /**
+ * Menu option command.
+ *
  * @author nikola
  */
-// @TODO: refactor to class with field of which command (save/load, pause) instead of interface and
-// multiple impls (https://www.cuttingedge.it/blogs/steven/pivot/entry.php?id=91)
 public class MenuCommand implements Command {
+
+    /**
+     * Enum representing different menu options.
+     */
     public enum Menu {
         NEW("New game", 'G'),
         PAUSE("Pause", 'P'),
@@ -29,6 +33,14 @@ public class MenuCommand implements Command {
         }
 
         Menu() {
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public char getAbbr() {
+            return abbr;
         }
     }
 

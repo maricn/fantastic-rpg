@@ -11,6 +11,8 @@ import java.util.Random;
  */
 public class MonsterFactory {
 
+    public static final double RANDOMNESS_RATIO = 0.2d;
+
     public Monster createMonster(Random random, MonsterDifficulty difficulty, FieldType fieldType) {
         Monster.MonsterType[] types = Monster.MonsterType.values();
         Monster.MonsterType monsterType;
@@ -18,9 +20,18 @@ public class MonsterFactory {
             monsterType = types[random.nextInt(types.length)];
         } while (monsterType.getFieldType() != fieldType);
 
-        return new Monster(difficulty.hp, difficulty.dmg, difficulty.xp, difficulty.xp, monsterType);
+        int randomHp = (int) (difficulty.hp * (1 - RANDOMNESS_RATIO)) +
+                random.nextInt((int) (difficulty.hp * RANDOMNESS_RATIO));
+        int randomDamage = (int) (difficulty.dmg * (1 - RANDOMNESS_RATIO) +
+                random.nextInt((int) (difficulty.dmg * RANDOMNESS_RATIO)));
+        int randomXp = (int) (difficulty.xp * (1 - RANDOMNESS_RATIO) +
+                random.nextInt((int) (difficulty.xp * RANDOMNESS_RATIO)));
+        return new Monster(randomHp, randomDamage, randomXp, randomXp, monsterType);
     }
 
+    /**
+     * Enum representing different point scales for game difficulties.
+     */
     public enum MonsterDifficulty {
         EASY(100, 30, 10), MODERATE(150, 80, 100), HARD(300, 100, 200);
 
@@ -32,6 +43,18 @@ public class MonsterFactory {
             this.hp = hp;
             this.dmg = dmg;
             this.xp = xp;
+        }
+
+        public int getHp() {
+            return hp;
+        }
+
+        public int getDmg() {
+            return dmg;
+        }
+
+        public int getXp() {
+            return xp;
         }
     }
 }

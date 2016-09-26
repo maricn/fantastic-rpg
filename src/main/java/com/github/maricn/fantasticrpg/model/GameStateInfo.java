@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**
- * Created by nikola on 2016-09-22.
+ * Metadata for {@link GameState}.
  *
  * @author nikola
  */
@@ -14,7 +14,6 @@ public class GameStateInfo {
     private Instant saveTime;
     private String saveName;
     private String playerName;
-//    private GameState gameState;
 
     public Instant getSaveTime() {
         return saveTime;

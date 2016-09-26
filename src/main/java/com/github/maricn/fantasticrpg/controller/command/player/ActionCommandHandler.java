@@ -46,7 +46,8 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
         try {
             if (command instanceof MoveCommand) executeCommand((MoveCommand) command);
             if (command instanceof FightCommand) executeCommand((FightCommand) command);
-        } catch (FantasticRpgException ignored) {
+        } catch (FantasticRpgException exception) {
+            io.error(exception.getMessage());
             commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
 //            menuFactory.getMovementMenu().interact();
         }
