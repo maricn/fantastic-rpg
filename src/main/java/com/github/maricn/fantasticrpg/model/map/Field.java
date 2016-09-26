@@ -5,7 +5,7 @@ import com.github.maricn.fantasticrpg.model.character.GameCharacter;
 import java.io.Serializable;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Anemic model representing a map field.
  *
  * @author nikola
  */
@@ -60,7 +60,6 @@ public class Field implements Serializable {
         if (explored != field.explored) return false;
         if (type != field.type) return false;
         return !(occupying != null ? !occupying.equals(field.occupying) : field.occupying != null);
-
     }
 
     @Override

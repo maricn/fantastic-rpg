@@ -18,7 +18,7 @@ import java.util.Collections;
 public class TestWorldBuilder {
 
     public static Player buildPlayer() {
-        return new Player(100, 20, 10, "player",0, 0, Collections.<Ability>emptySet());
+        return new Player(100, 20, 10, "player", 0, 0, Collections.<Ability>emptySet());
     }
 
     public static Monster buildEasyMonster(Monster.MonsterType type) {
@@ -29,11 +29,19 @@ public class TestWorldBuilder {
         return new Monster(99_999, 99_999, 1, 99_999, type);
     }
 
-    public static Map buildMap(Player player){
-        Field[][] fields = new Field[][] {
-                {new Field(false, FieldType.EMPTY, player), new Field(false, FieldType.WALL, buildImpossibleMonster(Monster.MonsterType.DEICIDE))},
-                {new Field(false, FieldType.EMPTY, null), new Field(false, FieldType.WATER, null)},
-                {new Field(false, FieldType.EMPTY, buildImpossibleMonster(Monster.MonsterType.ROBOT)), new Field(false, FieldType.WATER, buildEasyMonster(Monster.MonsterType.SHARK))}
+    public static Map buildExploredMap() {
+        return buildMap(buildPlayer(), true);
+    }
+
+    public static Map buildMap(Player player) {
+        return buildMap(player, false);
+    }
+
+    public static Map buildMap(Player player, boolean explored) {
+        Field[][] fields = new Field[][]{
+                {new Field(explored, FieldType.EMPTY, player), new Field(explored, FieldType.WALL, buildImpossibleMonster(Monster.MonsterType.DEICIDE))},
+                {new Field(explored, FieldType.EMPTY, null), new Field(explored, FieldType.WATER, null)},
+                {new Field(explored, FieldType.EMPTY, buildImpossibleMonster(Monster.MonsterType.ROBOT)), new Field(explored, FieldType.WATER, buildEasyMonster(Monster.MonsterType.SHARK))}
         };
         return new Map(fields, 0, 0, 2);
     }

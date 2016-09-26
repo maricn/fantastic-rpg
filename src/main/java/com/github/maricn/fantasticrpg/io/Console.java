@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * Created by nikola on 2016-09-20.
+ * {@link InputOutput} implementation which writes out stuff to
+ * {@code System.out} and accepts user input from {@code System.in} by default.
  *
  * @author nikola
  */
@@ -51,13 +52,13 @@ public class Console implements InputOutput {
 
     @Override
     public void clear() {
-        printStream.print(ANSI.CLS + ANSI.HOME);
+        printStream.printf(ANSI.CLS + ANSI.HOME);
         printStream.flush();
     }
 
     @Override
     public void write(String text) {
-        printStream.print(text);
+        printStream.printf(text);
     }
 
     @Override
@@ -66,14 +67,14 @@ public class Console implements InputOutput {
         String choices = commands.get(0).getMenuOption();
         for (int i = 1; i < commands.size(); i++) {
             if (choices.length() > 100) {
-                printStream.print(choices + " | \n");
+                printStream.printf(choices + " | %n");
                 choices = "";
             }
 
             choices += " | " + commands.get(i).getMenuOption();
         }
 
-        printStream.print(choices + "\n" + ANSI.RESET);
+        printStream.printf(choices + "%n" + ANSI.RESET);
         printStream.flush();
     }
 
@@ -84,7 +85,7 @@ public class Console implements InputOutput {
 
     @Override
     public void dumpMap(Map map) {
-        writeHorizontalEdge(map.getWidth());
+        printStream.printf(ANSI.RED + getHorizontalEdge(map.getWidth()) + "+%n");
 
         for (int i = 0; i < map.getHeight(); i++) {
             printStream.printf("|");
@@ -99,7 +100,7 @@ public class Console implements InputOutput {
             printStream.printf(ANSI.RED + "|%n");
         }
 
-        writeHorizontalEdge(map.getWidth());
+        printStream.printf(ANSI.RED + getHorizontalEdge(map.getWidth()) + "+%n");
         printStream.flush();
     }
 
@@ -140,7 +141,6 @@ public class Console implements InputOutput {
     }
 
     private static String stringifyMapField(Field field) {
-        // @TODO: debug?
         if (!field.getExplored()) {
             return ANSI.RED + '?';
         }
@@ -180,13 +180,12 @@ public class Console implements InputOutput {
         }
     }
 
-    private void writeHorizontalEdge(int width) {
-        printStream.printf(ANSI.RED + "+");
+    private String getHorizontalEdge(int width) {
+        String edge = "+";
         for (int i = 0; i < width; i++) {
-            printStream.printf("-");
+            edge += "-";
         }
 
-        printStream.printf("+%n" + ANSI.RESET);
-        printStream.flush();
+        return edge;
     }
 }

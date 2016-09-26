@@ -105,15 +105,15 @@ public class MonsterFactoryTest {
 
     private void assertMonsterInDifficultyLevel(Monster monster, MonsterFactory.MonsterDifficulty difficulty) {
         assertTrue(difficulty.getHp() >= monster.getHealthPoints());
-        assertTrue(Double.compare(
-                monster.getHealthPoints(),
-                monster.getType().getHpFactor() * difficulty.getHp() * (1 - MonsterFactory.RANDOMNESS_RATIO)
-        ) >= 0);
+        assertTrue(
+                monster.getHealthPoints() >=
+                        (int) monster.getType().getHpFactor() * difficulty.getHp() * (1 - MonsterFactory.RANDOMNESS_RATIO)
+        );
         assertTrue(difficulty.getDmg() >= monster.getDamage());
-        assertTrue(Double.compare(
-                monster.getDamage(),
-                monster.getType().getDamageFactor() * difficulty.getDmg() * (1 - MonsterFactory.RANDOMNESS_RATIO)
-        ) >= 0);
+        assertTrue(
+                monster.getDamage() >=
+                        (int) monster.getType().getDamageFactor() * difficulty.getDmg() * (1 - MonsterFactory.RANDOMNESS_RATIO)
+        );
         assertTrue(difficulty.getXp() >= monster.getExperience());
         assertTrue(
 //                "Monster: " + monster.getExperience() + " | expected min: " + monster.getType().getXpFactor() * difficulty.getXp() * (1 - MonsterFactory.RANDOMNESS_RATIO),

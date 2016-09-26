@@ -49,7 +49,6 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
         } catch (FantasticRpgException exception) {
             io.error(exception.getMessage());
             commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
-//            menuFactory.getMovementMenu().interact();
         }
     }
 
@@ -114,8 +113,17 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
                 monster.setHealthPoints(monster.getHealthPoints() - damage);
 
                 if (monster.getHealthPoints() <= 0) {
+                    io.write("You killed the evil " + monster.getType() + "!\n");
+
                     // Experience gain from monster
                     player.setExperience(player.getExperience() + monster.getExperience());
+                    for (Ability ability : Ability.values()) {
+                        if (player.getExperience() >= ability.getExperience() &&
+                                !player.getAbilities().contains(ability)) {
+                            player.getAbilities().add(ability);
+                            io.write("You have acquired a new ability - " + ability.name());
+                        }
+                    }
 
                     // Damage increase when killing, up to third of monster XP
                     player.setDamage(player.getDamage() + random.nextInt(monster.getExperience() / 3));
@@ -128,7 +136,6 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
                     player.setCurrX(player.getCurrX() + player.getFacing().getDeltaX());
                     player.setCurrY(player.getCurrY() + player.getFacing().getDeltaY());
                     targetField.setOccupying(player);
-                    io.write("You killed the evil " + monster.getType() + "!\n");
                     if (map.getNumOfMonsters() == 0) {
                         io.write("Congratulations! You completed the level!\n");
                         gameState.setState(GameState.State.PAUSED);

@@ -3,7 +3,7 @@ package com.github.maricn.fantasticrpg.model.map;
 import java.io.Serializable;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Enum representing different field types for map fields.
  *
  * @author nikola
  */

@@ -51,7 +51,6 @@ public class GameState implements Serializable {
         if (map != null ? !map.equals(gameState.map) : gameState.map != null) return false;
         if (player != null ? !player.equals(gameState.player) : gameState.player != null) return false;
         return state == gameState.state;
-
     }
 
     @Override

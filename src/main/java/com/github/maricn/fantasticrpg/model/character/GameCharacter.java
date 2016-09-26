@@ -3,6 +3,7 @@ package com.github.maricn.fantasticrpg.model.character;
 import java.io.Serializable;
 
 /**
+ * Anemic model representing a game character.
  *
  * @author nikola
  */
@@ -54,7 +55,6 @@ public class GameCharacter implements Serializable {
         if (healthPoints != that.healthPoints) return false;
         if (damage != that.damage) return false;
         return experience == that.experience;
-
     }
 
     @Override

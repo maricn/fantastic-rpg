@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Created by nikola on 2016-09-24.
+ * Factory used to generate levels. Level number is a seed used for {@link java.util.Random},
+ * so using same seed will result in same level.
  *
  * @author nikola
  */
@@ -140,7 +141,10 @@ public class MapFactory {
     }
 
     private int placeMonsters(Field[][] fields, Room room, int level) {
-        int numOfMonsters = random.nextInt(room.width * room.height / (((level - 1) / LEVELS_PER_DIFFICULTY + 1) * 6));
+        int numOfMonsters = random.nextInt(
+                1 + (room.width * room.height) /
+                        (((level - 1) / LEVELS_PER_DIFFICULTY + 1) * 6)
+        );
         for (int i = 0; i < numOfMonsters; i++) {
             int monsterX, monsterY;
             do {
@@ -170,7 +174,7 @@ public class MapFactory {
     }
 
     private Field[][] placeRoom(Field[][] fields, Room room, int seed) {
-        FieldType fieldType = seed < 21 ? FieldType.EMPTY : random.nextInt(42) > seed ? FieldType.WATER : FieldType.EMPTY;
+        FieldType fieldType = getRandomFieldType(seed);
         for (int i = room.y; i < room.y + room.height; i++) {
             for (int j = room.x; j < room.x + room.width; j++) {
                 fields[i][j].setType(fieldType);
@@ -178,6 +182,27 @@ public class MapFactory {
         }
 
         return fields;
+    }
+
+    private FieldType getRandomFieldType(int seed) {
+        FieldType fieldType = FieldType.EMPTY;
+        if (seed >= 11) {
+            if (seed >= 21) {
+                int rnd = random.nextInt(42);
+                if (rnd > seed) {
+                    fieldType = FieldType.WALL;
+                } else {
+                    if (rnd > 21) {
+                        fieldType = FieldType.WATER;
+                    }
+                }
+            } else {
+                // Actually a very magic number in this case!
+                fieldType = random.nextInt(42) > seed ? FieldType.WATER : FieldType.EMPTY;
+            }
+        }
+
+        return fieldType;
     }
 
     class Room {

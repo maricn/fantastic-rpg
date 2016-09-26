@@ -28,7 +28,6 @@ public class FightCommand implements ActionCommand {
         private final char abbreviation;
         private final String menuOption;
 
-
         Action(char abbreviation, String menuOption) {
             this.abbreviation = abbreviation;
             this.menuOption = menuOption;

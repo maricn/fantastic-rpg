@@ -3,7 +3,7 @@ package com.github.maricn.fantasticrpg.model.character;
 import com.github.maricn.fantasticrpg.controller.command.player.Direction;
 
 import java.io.Serializable;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -16,7 +16,7 @@ public class Player extends GameCharacter implements Serializable {
 
     private String name;
     private int currX, currY;
-    private Set<Ability> abilities = Collections.emptySet();
+    private Set<Ability> abilities = new HashSet<>(2);
     private Direction facing = null;
 
     /**
