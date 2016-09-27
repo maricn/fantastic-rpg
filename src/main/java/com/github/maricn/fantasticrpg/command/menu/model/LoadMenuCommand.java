@@ -1,4 +1,4 @@
-package com.github.maricn.fantasticrpg.controller.command.menu;
+package com.github.maricn.fantasticrpg.command.menu.model;
 
 /**
  * Command representing load game action.

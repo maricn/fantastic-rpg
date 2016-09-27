@@ -15,6 +15,16 @@ public class GameStateInfo {
     private String saveName;
     private String playerName;
 
+    public GameStateInfo() {
+    }
+
+    public GameStateInfo(Instant saveTime, String saveName, String playerName) {
+
+        this.saveTime = saveTime;
+        this.saveName = saveName;
+        this.playerName = playerName;
+    }
+
     public Instant getSaveTime() {
         return saveTime;
     }

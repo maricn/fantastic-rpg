@@ -1,6 +1,6 @@
-package com.github.maricn.fantasticrpg.controller.command.player;
+package com.github.maricn.fantasticrpg.command.player.model;
 
-import com.github.maricn.fantasticrpg.controller.command.Command;
+import com.github.maricn.fantasticrpg.command.Command;
 
 /**
  * Parent interface for gaming (player movement, fighting) commands.

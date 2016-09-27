@@ -1,12 +1,13 @@
 package com.github.maricn.fantasticrpg.model.map;
 
 import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
+import com.github.maricn.fantasticrpg.model.exception.OutOfBoundsFantasticRpgException;
 
 import java.io.Serializable;
 import java.util.Arrays;
 
 /**
- * Represents game map consisting of fields which can be explored, and can contain <code>GameCharacter</code>s.
+ * Represents game map consisting of fields which can be explored, and can contain {@link com.github.maricn.fantasticrpg.model.character.GameCharacter}s.
  * Each level is represented by a map.
  *
  * @author nikola
@@ -60,9 +61,9 @@ public class Map implements Serializable {
      * @return field
      * @throws FantasticRpgException
      */
-    public Field getField(int y, int x) throws FantasticRpgException {
+    public Field getField(int y, int x) throws OutOfBoundsFantasticRpgException {
         if (y < 0 || x < 0 || y >= getHeight() || x >= getWidth()) {
-            throw new FantasticRpgException("Field coordinates (" + y + ", " + x + ") out of map.");
+            throw new OutOfBoundsFantasticRpgException("Field coordinates (" + y + ", " + x + ") out of map.");
         }
 
         return fields[y][x];
@@ -79,7 +80,7 @@ public class Map implements Serializable {
             for (int j : DIRECTIONS) {
                 try {
                     getField(y + i, x + j).setExplored(true);
-                } catch (FantasticRpgException ignored) {
+                } catch (OutOfBoundsFantasticRpgException ignored) {
                 }
             }
         }

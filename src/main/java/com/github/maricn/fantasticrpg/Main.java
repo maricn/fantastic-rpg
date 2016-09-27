@@ -1,9 +1,9 @@
 package com.github.maricn.fantasticrpg;
 
-import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommandHandler;
-import com.github.maricn.fantasticrpg.controller.command.player.ActionCommandHandler;
+import com.github.maricn.fantasticrpg.command.CommandDispatcher;
+import com.github.maricn.fantasticrpg.command.menu.MenuCommandHandler;
+import com.github.maricn.fantasticrpg.command.menu.model.MenuCommand;
+import com.github.maricn.fantasticrpg.command.player.ActionCommandHandler;
 import com.github.maricn.fantasticrpg.io.Console;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
@@ -14,7 +14,10 @@ import com.github.maricn.fantasticrpg.repository.GameStateRepository;
 import com.github.maricn.fantasticrpg.repository.GameStateRepositoryFileImpl;
 import com.github.maricn.fantasticrpg.ui.MenuFactory;
 
+import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -44,13 +47,30 @@ public class Main {
         GameState gameState = new GameState();
         gameState.setState(GameState.State.NEW);
 
-        GameStateRepository gameStateRepository = new GameStateRepositoryFileImpl();
+        GameStateRepository gameStateRepository = null;
+        try {
+            gameStateRepository = new GameStateRepositoryFileImpl();
+        } catch (IOException e) {
+            io.error(e.getMessage());
+        }
 
         CommandDispatcher commandDispatcher = new CommandDispatcher();
 
         MenuFactory menuFactory = new MenuFactory(io, commandDispatcher);
-        ActionCommandHandler actionCommandHandler = new ActionCommandHandler(gameState, io, menuFactory, commandDispatcher);
-        MenuCommandHandler menuCommandHandler = new MenuCommandHandler(gameState, io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
+        ActionCommandHandler actionCommandHandler = new ActionCommandHandler(
+                new Random(Instant.now().getEpochSecond()),
+                gameState,
+                io,
+                commandDispatcher
+        );
+        MenuCommandHandler menuCommandHandler = new MenuCommandHandler(
+                gameState,
+                io,
+                commandDispatcher,
+                menuFactory,
+                mapFactory,
+                gameStateRepository
+        );
 
         commandDispatcher.setActionCommandHandler(actionCommandHandler);
         commandDispatcher.setMenuCommandHandler(menuCommandHandler);

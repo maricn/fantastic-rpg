@@ -1,7 +1,7 @@
 package com.github.maricn.fantasticrpg.ui;
 
-import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
-import com.github.maricn.fantasticrpg.controller.command.Command;
+import com.github.maricn.fantasticrpg.command.Command;
+import com.github.maricn.fantasticrpg.command.CommandDispatcher;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class Menu {
     protected List<Command> commands;
 
     public Menu(InputOutput io, CommandDispatcher commandDispatcher, List<Command> commands) {
-        if (commands.isEmpty()) throw new RuntimeException("No commands passed to menu!");
+        if (commands == null || commands.isEmpty()) throw new RuntimeException("No commands passed to menu!");
         this.io = io;
         this.commandDispatcher = commandDispatcher;
         this.commands = commands;
@@ -30,7 +30,6 @@ public class Menu {
      * forwards command to command dispatcher for execution.
      */
     public void interact() {
-//        io.clear();
         Command command = null;
         boolean skipOut = false;
         do {

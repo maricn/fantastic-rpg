@@ -1,10 +1,9 @@
 package com.github.maricn.fantasticrpg.io;
 
-import com.github.maricn.fantasticrpg.controller.command.Command;
+import com.github.maricn.fantasticrpg.command.Command;
 import com.github.maricn.fantasticrpg.model.character.Ability;
 import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.Player;
-import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 import com.github.maricn.fantasticrpg.model.map.Field;
 import com.github.maricn.fantasticrpg.model.map.Map;
 
@@ -90,11 +89,7 @@ public class Console implements InputOutput {
         for (int i = 0; i < map.getHeight(); i++) {
             printStream.printf("|");
             for (int j = 0; j < map.getWidth(); j++) {
-                try {
-                    printStream.printf(stringifyMapField(map.getField(i, j)));
-                } catch (FantasticRpgException e) {
-                    error(e.getMessage());
-                }
+                printStream.printf(stringifyMapField(map.getField(i, j)));
             }
 
             printStream.printf(ANSI.RED + "|%n");
@@ -134,7 +129,7 @@ public class Console implements InputOutput {
             int read = bufferedReader.read();
             return (char) read;
         } catch (IOException e) {
-            e.printStackTrace();
+            this.error(e.getMessage());
         }
 
         return 0;

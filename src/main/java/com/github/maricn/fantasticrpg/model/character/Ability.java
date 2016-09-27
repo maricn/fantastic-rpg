@@ -6,7 +6,6 @@ package com.github.maricn.fantasticrpg.model.character;
  * @author nikola
  */
 public enum Ability {
-    // @TODO: increase values
     SWIMMING(500), GODMODE(1000);
 
     private int experience;

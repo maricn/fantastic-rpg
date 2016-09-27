@@ -1,11 +1,11 @@
 package com.github.maricn.fantasticrpg.io;
 
-import com.github.maricn.fantasticrpg.controller.command.Command;
-import com.github.maricn.fantasticrpg.controller.command.menu.LoadMenuCommand;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
-import com.github.maricn.fantasticrpg.controller.command.player.Direction;
-import com.github.maricn.fantasticrpg.controller.command.player.FightCommand;
-import com.github.maricn.fantasticrpg.controller.command.player.MoveCommand;
+import com.github.maricn.fantasticrpg.command.Command;
+import com.github.maricn.fantasticrpg.command.menu.model.LoadMenuCommand;
+import com.github.maricn.fantasticrpg.command.menu.model.MenuCommand;
+import com.github.maricn.fantasticrpg.command.player.model.Direction;
+import com.github.maricn.fantasticrpg.command.player.model.FightCommand;
+import com.github.maricn.fantasticrpg.command.player.model.MoveCommand;
 import com.github.maricn.fantasticrpg.model.character.Ability;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.map.Map;
@@ -135,6 +135,15 @@ public class ConsoleTest {
         String s = "testTexgtasvo\\@$241";
 
         io.write(s);
+
+        verify(printStream, times(1)).printf(contains(s));
+    }
+
+    @Test
+    public void testError() {
+        String s = "testTexgtasvo\\@$241";
+
+        io.error(s);
 
         verify(printStream, times(1)).printf(contains(s));
     }

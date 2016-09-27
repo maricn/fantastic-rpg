@@ -1,12 +1,12 @@
 package com.github.maricn.fantasticrpg.ui;
 
-import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
-import com.github.maricn.fantasticrpg.controller.command.Command;
-import com.github.maricn.fantasticrpg.controller.command.menu.LoadMenuCommand;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
-import com.github.maricn.fantasticrpg.controller.command.player.Direction;
-import com.github.maricn.fantasticrpg.controller.command.player.FightCommand;
-import com.github.maricn.fantasticrpg.controller.command.player.MoveCommand;
+import com.github.maricn.fantasticrpg.command.CommandDispatcher;
+import com.github.maricn.fantasticrpg.command.Command;
+import com.github.maricn.fantasticrpg.command.menu.model.LoadMenuCommand;
+import com.github.maricn.fantasticrpg.command.menu.model.MenuCommand;
+import com.github.maricn.fantasticrpg.command.player.model.Direction;
+import com.github.maricn.fantasticrpg.command.player.model.FightCommand;
+import com.github.maricn.fantasticrpg.command.player.model.MoveCommand;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import org.junit.Before;
 import org.junit.Test;

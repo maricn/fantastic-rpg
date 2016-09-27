@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class GameStateRepositoryFunctionalTest {
     private GameStateRepository gameStateRepository;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         gameStateRepository = new GameStateRepositoryFileImpl();
     }
 
@@ -35,7 +36,7 @@ public class GameStateRepositoryFunctionalTest {
     public void testAll() {
         Instant startTime = Instant.now();
         Player player = TestWorldBuilder.buildPlayer();
-        Map map = TestWorldBuilder.buildMap(player);
+        Map map = TestWorldBuilder.build2By3Map(player);
         GameState gameState = new GameState();
         gameState.setState(GameState.State.ROAMING);
         gameState.setMap(map);

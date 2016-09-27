@@ -1,4 +1,4 @@
-package com.github.maricn.fantasticrpg.controller.command;
+package com.github.maricn.fantasticrpg.command;
 
 /**
  * Command used in game. Can be gaming (moving, fighting, etc.) or menu (map, save, load, etc.) command.

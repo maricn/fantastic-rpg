@@ -1,6 +1,6 @@
 package com.github.maricn.fantasticrpg.model.character;
 
-import com.github.maricn.fantasticrpg.controller.command.player.Direction;
+import com.github.maricn.fantasticrpg.command.player.model.Direction;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -21,9 +21,6 @@ public class Player extends GameCharacter implements Serializable {
 
     /**
      * Constructor used for creating new player.
-     *
-     * @param startY
-     * @param startX
      */
     public Player(int startY, int startX, String name) {
         super(100, 20, 10);
@@ -34,14 +31,6 @@ public class Player extends GameCharacter implements Serializable {
 
     /**
      * Constructor used when loading game state.
-     *
-     * @param healthPoints
-     * @param damage
-     * @param experience
-     * @param name
-     * @param currX
-     * @param currY
-     * @param abilities
      */
     public Player(int healthPoints, int damage, int experience, String name, int currX, int currY, Set<Ability> abilities) {
         super(healthPoints, damage, experience);
@@ -49,6 +38,7 @@ public class Player extends GameCharacter implements Serializable {
         this.currX = currX;
         this.currY = currY;
         this.abilities = abilities;
+        this.facing = Direction.SOUTH;
     }
 
     public String getName() {

@@ -1,4 +1,4 @@
-package com.github.maricn.fantasticrpg.map;
+package com.github.maricn.fantasticrpg.model.map;
 
 import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.MonsterFactory;

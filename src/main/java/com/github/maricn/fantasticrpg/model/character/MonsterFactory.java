@@ -5,7 +5,8 @@ import com.github.maricn.fantasticrpg.model.map.FieldType;
 import java.util.Random;
 
 /**
- * Created by nikola on 2016-09-22.
+ * Used to generate different monsters based on provided {@link com.github.maricn.fantasticrpg.model.character.MonsterFactory.MonsterDifficulty} and {@link FieldType} they inhabit.
+ * {@link Random} number generator is passed as an argument, in order to generate the same {@link Monster}s on a level.
  *
  * @author nikola
  */

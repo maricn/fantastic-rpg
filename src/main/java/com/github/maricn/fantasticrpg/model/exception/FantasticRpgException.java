@@ -1,6 +1,7 @@
 package com.github.maricn.fantasticrpg.model.exception;
 
 /**
+ * Generic exception class used as a base for all checked exceptions thrown in game.
  *
  * @author nikola
  */

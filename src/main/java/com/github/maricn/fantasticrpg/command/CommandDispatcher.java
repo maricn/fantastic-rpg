@@ -1,12 +1,10 @@
-package com.github.maricn.fantasticrpg.controller;
+package com.github.maricn.fantasticrpg.command;
 
 import com.github.maricn.fantasticrpg.Main;
-import com.github.maricn.fantasticrpg.controller.command.Command;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommandHandler;
-import com.github.maricn.fantasticrpg.controller.command.player.ActionCommand;
-import com.github.maricn.fantasticrpg.controller.command.player.ActionCommandHandler;
-import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
+import com.github.maricn.fantasticrpg.command.menu.MenuCommandHandler;
+import com.github.maricn.fantasticrpg.command.menu.model.MenuCommand;
+import com.github.maricn.fantasticrpg.command.player.ActionCommandHandler;
+import com.github.maricn.fantasticrpg.command.player.model.ActionCommand;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -36,20 +34,14 @@ public class CommandDispatcher {
      */
     public void run() {
         while (Main.getRunning() && !commands.isEmpty()) {
-            Command command = commands.poll();
-            try {
-                dispatch(command);
-            } catch (FantasticRpgException e) {
-                e.printStackTrace();
+            Command cmd = commands.poll();
+            if (cmd instanceof MenuCommand) {
+                menuCommandHandler.executeCommand((MenuCommand) cmd);
+            } else {
+                if (cmd instanceof ActionCommand) {
+                    actionCommandHandler.executeCommand((ActionCommand) cmd);
+                }
             }
-        }
-    }
-
-    private void dispatch(Command cmd) throws FantasticRpgException {
-        if (cmd instanceof MenuCommand) {
-            menuCommandHandler.executeCommand((MenuCommand) cmd);
-        } else {
-            actionCommandHandler.executeCommand((ActionCommand) cmd);
         }
     }
 

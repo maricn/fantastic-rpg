@@ -1,6 +1,6 @@
 package com.github.maricn.fantasticrpg.io;
 
-import com.github.maricn.fantasticrpg.controller.command.Command;
+import com.github.maricn.fantasticrpg.command.Command;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.map.Map;
 

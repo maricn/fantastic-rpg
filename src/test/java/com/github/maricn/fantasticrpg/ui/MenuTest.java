@@ -1,8 +1,8 @@
 package com.github.maricn.fantasticrpg.ui;
 
-import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
-import com.github.maricn.fantasticrpg.controller.command.Command;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
+import com.github.maricn.fantasticrpg.command.CommandDispatcher;
+import com.github.maricn.fantasticrpg.command.Command;
+import com.github.maricn.fantasticrpg.command.menu.model.MenuCommand;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import org.junit.After;
 import org.junit.Before;

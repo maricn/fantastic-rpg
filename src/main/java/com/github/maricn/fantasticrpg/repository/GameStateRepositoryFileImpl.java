@@ -16,7 +16,8 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
- * Created by nikola on 2016-09-20.
+ * Implementation of {@link GameStateRepository} which saves and loads {@link GameState}s
+ * to and from files in folder {@code savegames}.
  *
  * @author nikola
  */
@@ -25,12 +26,8 @@ public class GameStateRepositoryFileImpl implements GameStateRepository {
             .withZone(ZoneId.systemDefault())
             .withLocale(Locale.getDefault());
 
-    public GameStateRepositoryFileImpl() {
-        try {
-            Files.createDirectories(Paths.get("savegames"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public GameStateRepositoryFileImpl() throws IOException {
+        Files.createDirectories(Paths.get("savegames"));
     }
 
     @Override
@@ -48,8 +45,8 @@ public class GameStateRepositoryFileImpl implements GameStateRepository {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
                 objectOutputStream.writeObject(gameState);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+            // @TODO: implement logging at least
         }
     }
 
@@ -59,8 +56,8 @@ public class GameStateRepositoryFileImpl implements GameStateRepository {
         try {
             ObjectInput input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
             return (GameState) input.readObject();
-        } catch (ClassNotFoundException | IOException e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException | IOException ignored) {
+            // @TODO: implement logging at least
         }
 
         return null;
@@ -85,8 +82,8 @@ public class GameStateRepositoryFileImpl implements GameStateRepository {
                     })
                     .sorted((o1, o2) -> o2.getSaveTime().compareTo(o1.getSaveTime()))
                     .collect(Collectors.toList());
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ignored) {
+            // @TODO: implement logging at least
         }
 
         return new ArrayList<>(0);

@@ -1,6 +1,4 @@
-package com.github.maricn.fantasticrpg.controller.command;
-
-import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
+package com.github.maricn.fantasticrpg.command;
 
 /**
  * Interface for all <code>CommandHandler</code>s.
@@ -12,7 +10,6 @@ public interface CommandHandler<T extends Command> {
      * Executes specified command.
      *
      * @param command command to be executed
-     * @throws FantasticRpgException
      */
-    void executeCommand(T command) throws FantasticRpgException;
+    void executeCommand(T command);
 }

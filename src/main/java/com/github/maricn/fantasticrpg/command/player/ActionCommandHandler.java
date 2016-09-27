@@ -1,9 +1,12 @@
-package com.github.maricn.fantasticrpg.controller.command.player;
+package com.github.maricn.fantasticrpg.command.player;
 
 import com.github.maricn.fantasticrpg.Main;
-import com.github.maricn.fantasticrpg.controller.CommandDispatcher;
-import com.github.maricn.fantasticrpg.controller.command.CommandHandler;
-import com.github.maricn.fantasticrpg.controller.command.menu.MenuCommand;
+import com.github.maricn.fantasticrpg.command.CommandDispatcher;
+import com.github.maricn.fantasticrpg.command.CommandHandler;
+import com.github.maricn.fantasticrpg.command.menu.model.MenuCommand;
+import com.github.maricn.fantasticrpg.command.player.model.ActionCommand;
+import com.github.maricn.fantasticrpg.command.player.model.FightCommand;
+import com.github.maricn.fantasticrpg.command.player.model.MoveCommand;
 import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.character.Ability;
@@ -11,12 +14,11 @@ import com.github.maricn.fantasticrpg.model.character.Monster;
 import com.github.maricn.fantasticrpg.model.character.Player;
 import com.github.maricn.fantasticrpg.model.exception.AbilityNotFoundException;
 import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
+import com.github.maricn.fantasticrpg.model.exception.OutOfBoundsFantasticRpgException;
 import com.github.maricn.fantasticrpg.model.map.Field;
 import com.github.maricn.fantasticrpg.model.map.FieldType;
 import com.github.maricn.fantasticrpg.model.map.Map;
-import com.github.maricn.fantasticrpg.ui.MenuFactory;
 
-import java.time.Instant;
 import java.util.Random;
 
 /**
@@ -27,26 +29,25 @@ import java.util.Random;
 public class ActionCommandHandler implements CommandHandler<ActionCommand> {
 
     // Fights PRNG different from fixed seeds level generator PRNG
-    private final Random random = new Random(Instant.now().getEpochSecond());
+    private final Random random;
 
     private final GameState gameState;
     private final InputOutput io;
-    private final MenuFactory menuFactory;
     private final CommandDispatcher commandDispatcher;
 
-    public ActionCommandHandler(GameState gameState, InputOutput io, MenuFactory menuFactory, CommandDispatcher commandDispatcher) {
+    public ActionCommandHandler(Random random, GameState gameState, InputOutput io, CommandDispatcher commandDispatcher) {
+        this.random = random;
         this.gameState = gameState;
         this.io = io;
-        this.menuFactory = menuFactory;
         this.commandDispatcher = commandDispatcher;
     }
 
     @Override
-    public void executeCommand(ActionCommand command) throws FantasticRpgException {
+    public void executeCommand(ActionCommand command) {
         try {
             if (command instanceof MoveCommand) executeCommand((MoveCommand) command);
             if (command instanceof FightCommand) executeCommand((FightCommand) command);
-        } catch (FantasticRpgException exception) {
+        } catch (FantasticRpgException | OutOfBoundsFantasticRpgException exception) {
             io.error(exception.getMessage());
             commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
         }
@@ -59,12 +60,7 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
         player.setFacing(command.getMoveDirection());
 
         Map map = gameState.getMap();
-        Field field;
-        try {
-            field = map.getField(newY, newX);
-        } catch (IndexOutOfBoundsException ignored) {
-            return;
-        }
+        Field field = map.getField(newY, newX);
 
         if (FieldType.WATER.equals(field.getType()) && !player.getAbilities().contains(Ability.SWIMMING)) {
             throw new AbilityNotFoundException(Ability.SWIMMING);
@@ -90,7 +86,7 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
         map.explore(newY, newX);
         map.getField(newY, newX).setOccupying(player);
 
-        menuFactory.getMovementMenu().interact();
+        commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
     }
 
     private void executeCommand(FightCommand command) throws FantasticRpgException {
@@ -105,7 +101,7 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
             case ENGAGE:
                 io.write("Your stats: " + player + "\n");
                 io.write("You are facing " + monster + "\n");
-                menuFactory.getFightMenu().interact();
+                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.FIGHT));
                 break;
             case ATTACK:
                 int damage = random.nextInt(player.getDamage());
@@ -135,16 +131,16 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
                     map.getField(player.getCurrY(), player.getCurrX()).setOccupying(null);
                     player.setCurrX(player.getCurrX() + player.getFacing().getDeltaX());
                     player.setCurrY(player.getCurrY() + player.getFacing().getDeltaY());
+                    map.explore(player.getCurrY(), player.getCurrX());
                     targetField.setOccupying(player);
                     if (map.getNumOfMonsters() == 0) {
                         io.write("Congratulations! You completed the level!\n");
-                        gameState.setState(GameState.State.PAUSED);
-                        menuFactory.getMainMenu().interact();
+                        gameState.setState(GameState.State.NEW);
+                        commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.NEW));
                         break;
                     } else {
                         gameState.setState(GameState.State.ROAMING);
-                        menuFactory.getMovementMenu().interact();
-                        //                        menuFactory.getMovementMenu().interact();
+                        commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
                         break;
                     }
                 } else {
@@ -161,12 +157,10 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
                 io.write("Your stats: " + player + "\n");
                 io.write("You are facing " + monster + "\n");
                 commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.FIGHT));
-//                menuFactory.getFightMenu(command.getFightDirection()).interact();
                 break;
             case RETREAT:
                 gameState.setState(GameState.State.ROAMING);
                 commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
-//                menuFactory.getMovementMenu().interact();
                 break;
         }
     }

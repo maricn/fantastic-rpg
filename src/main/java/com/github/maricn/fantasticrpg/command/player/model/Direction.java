@@ -1,4 +1,4 @@
-package com.github.maricn.fantasticrpg.controller.command.player;
+package com.github.maricn.fantasticrpg.command.player.model;
 
 /**
  * Enum representing four world directions.
