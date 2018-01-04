@@ -18,6 +18,7 @@ import java.util.Scanner;
  *
  * @author nikola
  */
+@SuppressWarnings("RedundantStringFormatCall")
 public class Console implements InputOutput {
 
     private PrintStream printStream;
@@ -29,24 +30,24 @@ public class Console implements InputOutput {
         this(System.out, System.in);
     }
 
-    public Console(PrintStream printStream, InputStream inputStream) {
+    Console(PrintStream printStream, InputStream inputStream) {
         this.printStream = printStream;
         this.bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         this.in = new Scanner(inputStream);
     }
 
     static class ANSI {
-        public static final String RESET = "\u001B[0m";
-        public static final String BLACK = "\u001B[30m";
-        public static final String RED = "\u001B[31m";
-        public static final String GREEN = "\u001B[32m";
-        public static final String YELLOW = "\u001B[33m";
-        public static final String BLUE = "\u001B[34m";
-        public static final String PURPLE = "\u001B[35m";
-        public static final String CYAN = "\u001B[36m";
-        public static final String WHITE = "\u001B[37m";
-        public static final String CLS = "\u001B[2J";
-        public static final String HOME = "\u001B[H";
+        static final String RESET = "\u001B[0m";
+        static final String BLACK = "\u001B[30m";
+        static final String RED = "\u001B[31m";
+        static final String GREEN = "\u001B[32m";
+        static final String YELLOW = "\u001B[33m";
+        static final String BLUE = "\u001B[34m";
+        static final String PURPLE = "\u001B[35m";
+        static final String CYAN = "\u001B[36m";
+        static final String WHITE = "\u001B[37m";
+        static final String CLS = "\u001B[2J";
+        static final String HOME = "\u001B[H";
     }
 
     @Override
@@ -63,14 +64,14 @@ public class Console implements InputOutput {
     @Override
     public void writeCommands(List<Command> commands) {
         printStream.printf(ANSI.YELLOW + "Please choose one of the following:%n");
-        String choices = commands.get(0).getMenuOption();
+        StringBuilder choices = new StringBuilder(commands.get(0).getMenuOption());
         for (int i = 1; i < commands.size(); i++) {
             if (choices.length() > 100) {
                 printStream.printf(choices + " | %n");
-                choices = "";
+                choices = new StringBuilder();
             }
 
-            choices += " | " + commands.get(i).getMenuOption();
+            choices.append(" | ").append(commands.get(i).getMenuOption());
         }
 
         printStream.printf(choices + "%n" + ANSI.RESET);
@@ -176,11 +177,11 @@ public class Console implements InputOutput {
     }
 
     private String getHorizontalEdge(int width) {
-        String edge = "+";
+        StringBuilder edge = new StringBuilder("+");
         for (int i = 0; i < width; i++) {
-            edge += "-";
+            edge.append("-");
         }
 
-        return edge;
+        return edge.toString();
     }
 }

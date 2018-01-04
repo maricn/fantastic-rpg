@@ -2,6 +2,7 @@ package com.github.maricn.fantasticrpg.repository;
 
 import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.GameStateInfo;
+import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -51,16 +52,14 @@ public class GameStateRepositoryFileImpl implements GameStateRepository {
     }
 
     @Override
-    public GameState load(GameStateInfo gameStateInfo) {
+    public GameState load(GameStateInfo gameStateInfo) throws FantasticRpgException {
         File file = Paths.get("savegames", gameStateInfo.getSaveName()).toFile();
         try {
             ObjectInput input = new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
             return (GameState) input.readObject();
         } catch (ClassNotFoundException | IOException ignored) {
-            // @TODO: implement logging at least
+            throw new FantasticRpgException("Saved game is corrupt or is saved with different game version.\n");
         }
-
-        return null;
     }
 
     @Override

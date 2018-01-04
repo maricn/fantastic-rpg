@@ -35,6 +35,7 @@ import static org.mockito.Mockito.*;
  *
  * @author nikola
  */
+@SuppressWarnings("RedundantStringFormatCall")
 @RunWith(JUnit4.class)
 public class ConsoleTest {
 
@@ -56,7 +57,7 @@ public class ConsoleTest {
     }
 
     @Test
-    public void testReadChar() throws IOException {
+    public void testReadChar() {
         char ch = io.readChar();
 
         assertEquals('c', ch);

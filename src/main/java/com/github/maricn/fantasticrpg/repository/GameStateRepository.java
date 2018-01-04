@@ -2,6 +2,7 @@ package com.github.maricn.fantasticrpg.repository;
 
 import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.GameStateInfo;
+import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 
 import java.util.List;
 
@@ -32,5 +33,5 @@ public interface GameStateRepository {
      * @param gameStateInfo {@link GameState} metadata used for identifying it
      * @return loaded {@link GameState}
      */
-    GameState load(GameStateInfo gameStateInfo);
+    GameState load(GameStateInfo gameStateInfo) throws FantasticRpgException;
 }

@@ -89,7 +89,7 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
         commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
     }
 
-    private void executeCommand(FightCommand command) throws FantasticRpgException {
+    private void executeCommand(FightCommand command) {
         Player player = gameState.getPlayer();
         Map map = gameState.getMap();
         Field targetField = map.getField(
@@ -117,15 +117,15 @@ public class ActionCommandHandler implements CommandHandler<ActionCommand> {
                         if (player.getExperience() >= ability.getExperience() &&
                                 !player.getAbilities().contains(ability)) {
                             player.getAbilities().add(ability);
-                            io.write("You have acquired a new ability - " + ability.name());
+                            io.write("You have acquired a new ability - " + ability.name() + "!\n");
                         }
                     }
 
-                    // Damage increase when killing, up to third of monster XP
-                    player.setDamage(player.getDamage() + random.nextInt(monster.getExperience() / 3));
+                    // Damage increase when killing, up to half of monster XP
+                    player.setDamage(player.getDamage() + random.nextInt(monster.getExperience() / 2));
 
-                    // Life steal when killing (amount damage)
-                    player.setHealthPoints(player.getHealthPoints() + damage);
+                    // Life steal when killing (at least half the damage of killing blow)
+                    player.setHealthPoints(player.getHealthPoints() + damage + random.nextInt(damage / 2));
 
                     map.setNumOfMonsters(map.getNumOfMonsters() - 1);
                     map.getField(player.getCurrY(), player.getCurrX()).setOccupying(null);

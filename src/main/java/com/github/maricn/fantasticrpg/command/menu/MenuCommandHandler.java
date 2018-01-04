@@ -10,6 +10,7 @@ import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.GameStateInfo;
 import com.github.maricn.fantasticrpg.model.character.Player;
+import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 import com.github.maricn.fantasticrpg.model.map.Map;
 import com.github.maricn.fantasticrpg.model.map.MapFactory;
 import com.github.maricn.fantasticrpg.repository.GameStateRepository;
@@ -18,6 +19,9 @@ import com.github.maricn.fantasticrpg.ui.MenuFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import static com.github.maricn.fantasticrpg.command.menu.model.MenuCommand.Menu.*;
+import static com.github.maricn.fantasticrpg.model.GameState.State.PAUSED;
 
 /**
  * Handles displaying menus and changing game state commands (ie., non gaming commands).
@@ -54,17 +58,18 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
             case DUMP:
                 io.dumpMap(gameState.getMap());
                 io.dumpPlayer(gameState.getPlayer());
-                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
+                commandDispatcher.offer(new MenuCommand(RESUME));
                 break;
             case PAUSE:
-                gameState.setState(GameState.State.PAUSED);
+                gameState.setState(PAUSED);
                 menuFactory.getPauseMenu().interact();
                 break;
             case SAVE:
                 gameStateRepository.save(gameState);
+                io.write("Game successfully saved!\n");
 
                 // We can save when we finish level or in game
-                if (gameState.getState() == GameState.State.PAUSED) {
+                if (gameState.getState() == PAUSED) {
                     menuFactory.getPauseMenu().interact();
                 } else {
                     menuFactory.getMainMenu().interact();
@@ -76,41 +81,50 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                         .limit(10)
                         .mapToObj(i -> new LoadMenuCommand((char) (i + '0'), allGameStateInfos.get(i).toString()))
                         .collect(Collectors.toList());
-                if (loadMenuCommandList != null && !loadMenuCommandList.isEmpty()) {
+                loadMenuCommandList.add(new MenuCommand(RESUME));
+                if (!loadMenuCommandList.isEmpty()) {
                     menuFactory.getLoadMenu(loadMenuCommandList).interact();
                 } else {
                     io.error("No saved games present!\n");
-                    commandDispatcher.offer(new MenuCommand(gameState.getState() == GameState.State.PAUSED ? MenuCommand.Menu.RESUME : MenuCommand.Menu.MAIN));
+                    commandDispatcher.offer(new MenuCommand(gameState.getState() == PAUSED ? RESUME : MAIN));
                 }
                 break;
             case LOADGAME:
                 LoadMenuCommand lmc = (LoadMenuCommand) command;
                 GameStateInfo gameStateInfo = gameStateRepository.getAllGameStateInfos().get(lmc.getChoice() - '0');
-                GameState loadedGameState = gameStateRepository.load(gameStateInfo);
-                if (loadedGameState == null) {
-                    io.error("Saved game is corrupt or is saved with different game version.\n");
-                    commandDispatcher.offer(new MenuCommand(gameState.getState() == GameState.State.PAUSED ? MenuCommand.Menu.RESUME : MenuCommand.Menu.MAIN));
+                try {
+                    GameState loadedGameState = gameStateRepository.load(gameStateInfo);
+
+                    gameState.setMap(loadedGameState.getMap());
+                    gameState.setPlayer(loadedGameState.getPlayer());
+                    gameState.setState(loadedGameState.getState());
+                } catch (FantasticRpgException e) {
+                    io.error(e.getMessage());
+                    commandDispatcher.offer(new MenuCommand(gameState.getState() == PAUSED ? RESUME : MAIN));
                     break;
                 }
 
-                gameState.setMap(loadedGameState.getMap());
-                gameState.setPlayer(loadedGameState.getPlayer());
-                gameState.setState(loadedGameState.getState());
-                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
+                commandDispatcher.offer(new MenuCommand(RESUME));
                 break;
             case QUIT:
                 io.write("Bye!");
                 Main.setRunning(false);
                 break;
             case NEW:
-                if (gameState.getState() == GameState.State.PAUSED) {
+                if (gameState.getState() == PAUSED) {
                     gameState.setState(GameState.State.NEW);
-                    commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.NEW));
+                    commandDispatcher.offer(new MenuCommand(NEW));
                     break;
                 }
 
-                io.write("What is your character's name?\n");
-                String playerName = io.read();
+                // Input player's name or reuse it if it's not the first level
+                String playerName;
+                if (gameState.getPlayer() == null) {
+                    io.write("What is your character's name?\n");
+                    playerName = io.read();
+                } else {
+                    playerName = gameState.getPlayer().getName();
+                }
 
                 int level = -1;
                 do {
@@ -140,7 +154,7 @@ public class MenuCommandHandler implements CommandHandler<MenuCommand> {
                 gameState.setPlayer(player);
 
                 io.write("You are placed in level " + level + ". Explore the world to complete the level.\n");
-                commandDispatcher.offer(new MenuCommand(MenuCommand.Menu.RESUME));
+                commandDispatcher.offer(new MenuCommand(RESUME));
                 break;
             case RESUME:
                 gameState.setState(GameState.State.ROAMING);

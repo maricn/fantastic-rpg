@@ -3,6 +3,7 @@ package com.github.maricn.fantasticrpg;
 import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.GameStateInfo;
 import com.github.maricn.fantasticrpg.model.character.Player;
+import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 import com.github.maricn.fantasticrpg.model.map.Map;
 import com.github.maricn.fantasticrpg.repository.GameStateRepository;
 import com.github.maricn.fantasticrpg.repository.GameStateRepositoryFileImpl;
@@ -53,7 +54,12 @@ public class GameStateRepositoryFunctionalTest {
         assertTrue(gameStateInfo.getSaveTime().getEpochSecond() > startTime.getEpochSecond() - 1L);
         assertTrue(gameStateInfo.getSaveTime().getEpochSecond() < Instant.now().getEpochSecond() + 1L);
 
-        GameState loadedGameState = gameStateRepository.load(gameStateInfo);
+        GameState loadedGameState = null;
+        try {
+            loadedGameState = gameStateRepository.load(gameStateInfo);
+        } catch (FantasticRpgException e) {
+            assertNotNull(e);
+        }
 
         assertNotNull(loadedGameState);
         assertEquals(gameState, loadedGameState);

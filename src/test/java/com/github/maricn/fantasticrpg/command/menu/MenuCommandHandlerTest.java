@@ -8,6 +8,7 @@ import com.github.maricn.fantasticrpg.io.InputOutput;
 import com.github.maricn.fantasticrpg.model.GameState;
 import com.github.maricn.fantasticrpg.model.GameStateInfo;
 import com.github.maricn.fantasticrpg.model.character.Player;
+import com.github.maricn.fantasticrpg.model.exception.FantasticRpgException;
 import com.github.maricn.fantasticrpg.model.map.Map;
 import com.github.maricn.fantasticrpg.model.map.MapFactory;
 import com.github.maricn.fantasticrpg.repository.GameStateRepository;
@@ -23,9 +24,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import static com.github.maricn.fantasticrpg.command.menu.model.MenuCommand.Menu.*;
+import static com.github.maricn.fantasticrpg.command.menu.model.MenuCommand.Menu.NEW;
+import static com.github.maricn.fantasticrpg.model.GameState.State.*;
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -35,6 +38,7 @@ import static org.mockito.Mockito.*;
  *
  * @author nikola
  */
+@SuppressWarnings("ResultOfMethodCallIgnored")
 @RunWith(MockitoJUnitRunner.class)
 public class MenuCommandHandlerTest {
 
@@ -59,25 +63,6 @@ public class MenuCommandHandlerTest {
     @InjectMocks
     private MenuCommandHandler menuCommandHandler;
 
-//    @Before
-//    public void setUp() {
-////        gameState = Mockito.mock(GameState.class);
-////        io = Mockito.mock()
-//        menuCommandHandler = new MenuCommandHandler(
-//                gameState,
-//                io,
-//                commandDispatcher,
-//                menuFactory,
-//                mapFactory,
-//                gameStateRepository
-//        );
-//    }
-
-//    @After
-//    public void tearDown() {
-//        Mockito.reset(gameState, io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
-//    }
-
     @Test
     public void testNew() {
         Command[] dispatched = new Command[1];
@@ -85,7 +70,7 @@ public class MenuCommandHandlerTest {
                 .when(commandDispatcher).offer(any(Command.class));
         doNothing().when(gameState).setPlayer(any(Player.class));
         when(gameState.getState())
-                .thenReturn(GameState.State.PAUSED)
+                .thenReturn(PAUSED)
                 .thenReturn(GameState.State.NEW);
         when(io.read())
                 .thenReturn("TestPlayerName")
@@ -101,12 +86,12 @@ public class MenuCommandHandlerTest {
         doNothing().when(gameState).setMap(any(Map.class));
         doNothing().when(gameState).setPlayer(any(Player.class));
 
-        MenuCommand cmd = new MenuCommand(MenuCommand.Menu.NEW);
+        MenuCommand cmd = new MenuCommand(NEW);
         menuCommandHandler.executeCommand(cmd);
 
         assertNotNull(dispatched[0]);
         assertTrue(dispatched[0] instanceof MenuCommand);
-        assertEquals(MenuCommand.Menu.NEW, ((MenuCommand) dispatched[0]).getMenu());
+        assertEquals(NEW, ((MenuCommand) dispatched[0]).getMenu());
 
         menuCommandHandler.executeCommand((MenuCommand) dispatched[0]);
 
@@ -114,13 +99,13 @@ public class MenuCommandHandlerTest {
         verify(io, atLeast(2)).read();
         verify(mapFactory, times(1)).generateMap(eq(16));
         verify(commandDispatcher, times(1)).offer(eq(dispatched[0]));
-        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(MenuCommand.Menu.RESUME)));
+        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(RESUME)));
         verifyNoMoreInteractions(menuFactory);
     }
 
     @Test
     public void testQuit() {
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.QUIT));
+        menuCommandHandler.executeCommand(new MenuCommand(QUIT));
 
         verify(io, atLeast(0)).write(anyString());
         verifyNoMoreInteractions(gameState, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
@@ -132,10 +117,10 @@ public class MenuCommandHandlerTest {
         doNothing().when(menu).interact();
         when(menuFactory.getMovementMenu()).thenReturn(menu);
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.RESUME));
+        menuCommandHandler.executeCommand(new MenuCommand(RESUME));
 
         verify(io, atLeast(0)).write(anyString());
-        verify(gameState, atLeast(0)).setState(eq(GameState.State.ROAMING));
+        verify(gameState, atLeast(0)).setState(eq(ROAMING));
         verify(menuFactory, times(1)).getMovementMenu();
         verifyNoMoreInteractions(commandDispatcher, gameState, io, menuFactory, mapFactory, gameStateRepository);
     }
@@ -154,13 +139,13 @@ public class MenuCommandHandlerTest {
             @SuppressWarnings("unchecked")
             List<Command> list = (List<Command>) invocation.getArguments()[0];
             assertNotNull(list);
-            assertEquals(2, list.size());
+            assertEquals(3, list.size());
             assertTrue(list.get(0).getMenuOption().contains("p0"));
             assertTrue(list.get(1).getMenuOption().contains("p1"));
             return menu;
         });
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.LOAD));
+        menuCommandHandler.executeCommand(new MenuCommand(LOAD));
 
         verify(gameStateRepository, times(1)).getAllGameStateInfos();
         verify(menuFactory, times(1)).getLoadMenu(any());
@@ -168,22 +153,7 @@ public class MenuCommandHandlerTest {
     }
 
     @Test
-    public void testLoadError() {
-        when(gameStateRepository.getAllGameStateInfos())
-                .thenReturn(Collections.<GameStateInfo>emptyList());
-        when(gameState.getState())
-                .thenReturn(GameState.State.PAUSED);
-
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.LOAD));
-
-        verify(io, atLeastOnce()).error(anyString());
-        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(MenuCommand.Menu.RESUME)));
-        verify(gameStateRepository, atLeastOnce()).getAllGameStateInfos();
-        verifyNoMoreInteractions(io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
-    }
-
-    @Test
-    public void testLoadGame() {
+    public void testLoadGame() throws FantasticRpgException {
         Instant now = Instant.now();
         when(gameStateRepository.getAllGameStateInfos())
                 .thenReturn(Arrays.asList(
@@ -207,14 +177,14 @@ public class MenuCommandHandlerTest {
         verify(this.gameState, times(1)).setMap(eq(builtGameState.getMap()));
         verify(this.gameState, times(1)).setPlayer(eq(builtGameState.getPlayer()));
         verify(this.gameState, times(1)).setState(eq(builtGameState.getState()));
-        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(MenuCommand.Menu.RESUME)));
+        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(RESUME)));
         verify(gameStateRepository, times(1)).getAllGameStateInfos();
         verify(gameStateRepository, times(1)).load(any(GameStateInfo.class));
         verifyNoMoreInteractions(gameState, io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
     }
 
     @Test
-    public void testLoadGameError() {
+    public void testLoadGameError() throws FantasticRpgException {
         Instant now = Instant.now();
         when(gameStateRepository.getAllGameStateInfos())
                 .thenReturn(Arrays.asList(
@@ -223,17 +193,14 @@ public class MenuCommandHandlerTest {
                         new GameStateInfo(now, "save2", "p2")
                 ));
         when(gameStateRepository.load(any(GameStateInfo.class)))
-                .thenAnswer(invocation -> {
-                    assertTrue("save2".equals(((GameStateInfo) invocation.getArguments()[0]).getSaveName()));
-                    return null;
-                });
-        when(gameState.getState()).thenReturn(GameState.State.PAUSED);
+                .thenThrow(new FantasticRpgException("TEST ERROR MESSAGE"));
+        when(gameState.getState()).thenReturn(PAUSED);
 
         LoadMenuCommand lmc = new LoadMenuCommand('2', "save2");
         menuCommandHandler.executeCommand(lmc);
 
-        verify(io, atLeastOnce()).error(anyString());
-        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(MenuCommand.Menu.RESUME)));
+        verify(io, atLeastOnce()).error(eq("TEST ERROR MESSAGE"));
+        verify(commandDispatcher, times(1)).offer(eq(new MenuCommand(RESUME)));
         verify(gameStateRepository, times(1)).getAllGameStateInfos();
         verify(gameStateRepository, times(1)).load(any(GameStateInfo.class));
         verifyNoMoreInteractions(io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
@@ -241,18 +208,18 @@ public class MenuCommandHandlerTest {
 
     @Test
     public void testSaveInGame() {
-        when(gameState.getState()).thenReturn(GameState.State.PAUSED);
+        when(gameState.getState()).thenReturn(PAUSED);
         Menu menu = Mockito.mock(Menu.class);
         doNothing().when(menu).interact();
         when(menuFactory.getPauseMenu()).thenReturn(menu);
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.SAVE));
+        menuCommandHandler.executeCommand(new MenuCommand(SAVE));
 
         verify(gameStateRepository, times(1)).save(eq(gameState));
         verify(gameState, times(1)).getState();
         verify(menuFactory, times(1)).getPauseMenu();
         verify(menu, times(1)).interact();
-        verifyNoMoreInteractions(gameState, io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
+        verifyNoMoreInteractions(gameState, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
     }
 
     @Test
@@ -262,13 +229,13 @@ public class MenuCommandHandlerTest {
         doNothing().when(menu).interact();
         when(menuFactory.getMainMenu()).thenReturn(menu);
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.SAVE));
+        menuCommandHandler.executeCommand(new MenuCommand(SAVE));
 
         verify(gameStateRepository, times(1)).save(eq(gameState));
         verify(gameState, times(1)).getState();
         verify(menuFactory, times(1)).getMainMenu();
         verify(menu, times(1)).interact();
-        verifyNoMoreInteractions(gameState, io, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
+        verifyNoMoreInteractions(gameState, commandDispatcher, menuFactory, mapFactory, gameStateRepository);
     }
 
     @Test
@@ -277,10 +244,10 @@ public class MenuCommandHandlerTest {
         doNothing().when(menu).interact();
         when(menuFactory.getPauseMenu()).thenReturn(menu);
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.PAUSE));
+        menuCommandHandler.executeCommand(new MenuCommand(PAUSE));
 
         verify(io, atLeast(0)).write(anyString());
-        verify(gameState, atLeast(0)).setState(eq(GameState.State.PAUSED));
+        verify(gameState, atLeast(0)).setState(eq(PAUSED));
         verify(menuFactory, times(1)).getPauseMenu();
         verifyNoMoreInteractions(commandDispatcher, gameState, io, menuFactory, mapFactory, gameStateRepository);
     }
@@ -294,11 +261,11 @@ public class MenuCommandHandlerTest {
         doNothing().when(io).dumpMap(any(Map.class));
         doNothing().when(io).dumpPlayer(any(Player.class));
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.DUMP));
+        menuCommandHandler.executeCommand(new MenuCommand(DUMP));
 
         verify(io, times(1)).dumpMap(eq(map));
         verify(io, times(1)).dumpPlayer(eq(player));
-        verify(commandDispatcher, times(1)).offer(new MenuCommand(MenuCommand.Menu.RESUME));
+        verify(commandDispatcher, times(1)).offer(new MenuCommand(RESUME));
         verify(gameState, atLeastOnce()).getMap();
         verify(gameState, atLeastOnce()).getPlayer();
         verifyNoMoreInteractions(commandDispatcher, gameState, io, menuFactory, mapFactory, gameStateRepository);
@@ -310,11 +277,11 @@ public class MenuCommandHandlerTest {
         doNothing().when(menu).interact();
         when(menuFactory.getFightMenu()).thenReturn(menu);
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.FIGHT));
+        menuCommandHandler.executeCommand(new MenuCommand(FIGHT));
 
         verify(menu, times(1)).interact();
         verify(menuFactory, times(1)).getFightMenu();
-        verify(gameState, atLeast(0)).setState(GameState.State.FIGHTING);
+        verify(gameState, atLeast(0)).setState(FIGHTING);
         verifyNoMoreInteractions(commandDispatcher, gameState, io, menuFactory, mapFactory, gameStateRepository);
     }
 
@@ -324,7 +291,7 @@ public class MenuCommandHandlerTest {
         doNothing().when(menu).interact();
         when(menuFactory.getMainMenu()).thenReturn(menu);
 
-        menuCommandHandler.executeCommand(new MenuCommand(MenuCommand.Menu.MAIN));
+        menuCommandHandler.executeCommand(new MenuCommand(MAIN));
 
         verify(menu, times(1)).interact();
         verify(menuFactory, times(1)).getMainMenu();

@@ -15,7 +15,7 @@ import java.util.Arrays;
 public class Map implements Serializable {
     private static final Long serialVersionUID = 1L;
 
-    private static final int[] DIRECTIONS = new int[]{-1, 0, 1};
+    private static final int[] DIRECTIONS = new int[]{-2, -1, 0, 1, 2};
 
     private final Field[][] fields;
     private final int startY;
